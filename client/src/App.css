@@ -233,6 +233,10 @@ body {
   background-color: var(--swatch-primary);
 }
 
+#list-card {
+  overflow: scroll;
+}
+
 .item-number,
 .playlister-item,
 .playlister-item-dragged-to {

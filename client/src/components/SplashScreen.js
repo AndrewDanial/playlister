@@ -1,5 +1,6 @@
 import { ButtonGroup } from "@mui/material";
 import Button from "@mui/material/Button";
+import { Link } from 'react-router-dom'
 export default function SplashScreen() {
 
     const buttonStyle = {
@@ -18,10 +19,10 @@ export default function SplashScreen() {
                 </div>
             </div>
 
-            <ButtonGroup id="splashbuttons" sx={{}}>
-                <Button variant="contained" sx={buttonStyle}>Register</Button>
-                <Button variant="contained" sx={buttonStyle}>Login</Button>
-                <Button variant="contained" sx={buttonStyle}>Continue As Guest</Button>
+            <ButtonGroup id="splashbuttons">
+                <Button href="/register/" variant="contained" sx={buttonStyle} >Register</Button>
+                <Button href="/login/" variant="contained" sx={buttonStyle}>Login</Button>
+                <Button href="/" variant="contained" sx={buttonStyle} >Continue As Guest</Button>
             </ButtonGroup>
         </div >
 
