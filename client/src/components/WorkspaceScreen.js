@@ -15,13 +15,13 @@ import { GlobalStoreContext } from '../store/index.js'
 function WorkspaceScreen() {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
-    useEffect(() => {
+    /*useEffect(() => {
         document.addEventListener('keydown', keyDownHandler);
 
         return () => {
             document.removeEventListener("keydown", keyDownHandler);
         };
-    }, []);
+    }, []);*/
     if (store.currentList == null) {
         store.history.push("/");
         return null;
@@ -35,7 +35,7 @@ function WorkspaceScreen() {
         modalJSX = <MUIRemoveSongModal />;
     }
 
-    function keyDownHandler(event) {
+    /*function keyDownHandler(event) {
         if (event.ctrlKey && event.key === 'z') {
             let undo = document.getElementById("undo-button");
             if (undo.disabled === false) {
@@ -49,10 +49,7 @@ function WorkspaceScreen() {
                 redo.click();
             }
         }
-    }
-
-
-
+    }*/
 
     return (
         <Box>
