@@ -6,7 +6,7 @@
     is a native (to browsers) standard, but Axios is easier
     to use when sending JSON back and forth and it`s a Promise-
     based API which helps a lot with asynchronous communication.
-    
+
     @author McKilla Gorilla
 */
 
@@ -27,7 +27,9 @@ export const createPlaylist = (newListName, newSongs, userEmail) => {
         // SPECIFY THE PAYLOAD
         name: newListName,
         songs: newSongs,
-        ownerEmail: userEmail
+        ownerEmail: userEmail,
+        likes: [],
+        dislikes: []
     })
 }
 export const deletePlaylistById = (id) => api.delete(`/playlist/${id}`)

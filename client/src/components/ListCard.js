@@ -27,8 +27,6 @@ function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
-    const [likes, setLike] = useState(0);
-    const [dislikes, setDislike] = useState(0);
     const { idNamePair, selected } = props;
 
     /*function handleLoadList(event, id) {
@@ -92,13 +90,12 @@ function ListCard(props) {
         }
 
     }
-    function handlelike(event, liked)
+
+    function handleLike(event, like)
     {
         event.stopPropagation();
-        console.log(likes)
-        liked ? setLike(likes+1) : setDislike(dislikes+1)
+        store.like(idNamePair._id, like);
     }
-
 
     let selectClass = "unselected-list-card";
     if (selected) {
@@ -117,6 +114,13 @@ function ListCard(props) {
     else if (store.isRemoveSongModalOpen()) {
         modalJSX = <MUIRemoveSongModal />;
     }
+    let likes = 0;
+    let dislikes = 0;
+    if (idNamePair.playlist)
+    {
+        likes = idNamePair.playlist.likes.length;
+        dislikes = idNamePair.playlist.dislikes.length;
+    }
 
     cardElement =
             <ListItem
@@ -132,13 +136,12 @@ function ListCard(props) {
                 <Grid container>
                         <Grid container xs={12}>
                             <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => {
-                                    handlelike(event, true);
-                                }}
-                            ><ThumbsUp /></IconButton>{likes}</Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => {
-                                    handlelike(event, false);
-                                }}><ThumbsDown /></IconButton>{dislikes}</Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp />
+                                </IconButton>{likes}
+                            </Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown />
+                                </IconButton>{dislikes}
+                            </Grid>
                         </Grid>
 
                     <Grid item xs={12}>

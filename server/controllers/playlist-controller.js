@@ -130,7 +130,8 @@ getPlaylistPairs = async (req, res) => {
                         let list = playlists[key];
                         let pair = {
                             _id: list._id,
-                            name: list.name
+                            name: list.name,
+                            playlist: list
                         };
                         pairs.push(pair);
                     }
@@ -177,15 +178,20 @@ updatePlaylist = async (req, res) => {
 
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
+
             await User.findOne({ email: list.ownerEmail }, (err, user) => {
                 console.log("user._id: " + user._id);
                 console.log("req.userId: " + req.userId);
+                console.log(list);
+                console.log(body.playlist);
                 if (user._id == req.userId) {
                     console.log("correct user!");
                     console.log("req.body.name: " + req.body.name);
 
                     list.name = body.playlist.name;
                     list.songs = body.playlist.songs;
+                    list.likes = body.playlist.likes;
+                    list.dislikes = body.playlist.dislikes;
                     list
                         .save()
                         .then(() => {
@@ -210,6 +216,7 @@ updatePlaylist = async (req, res) => {
                 }
             });
         }
+
         asyncFindUser(playlist);
     })
 }

@@ -6,7 +6,7 @@ import CreateSong_Transaction from '../transactions/CreateSong_Transaction'
 import MoveSong_Transaction from '../transactions/MoveSong_Transaction'
 import RemoveSong_Transaction from '../transactions/RemoveSong_Transaction'
 import UpdateSong_Transaction from '../transactions/UpdateSong_Transaction'
-import AuthContext from '../auth'
+import AuthContext from '../auth';
 /*
     This is our global data store. Note that it uses the Flux design pattern,
     which makes use of things like actions and reducers.
@@ -16,6 +16,7 @@ import AuthContext from '../auth'
 
 // THIS IS THE CONTEXT WE'LL USE TO SHARE OUR STORE
 export const GlobalStoreContext = createContext({});
+
 console.log("create GlobalStoreContext");
 
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR GLOBAL
@@ -30,7 +31,8 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     EDIT_SONG: "EDIT_SONG",
     REMOVE_SONG: "REMOVE_SONG",
-    HIDE_MODALS: "HIDE_MODALS"
+    HIDE_MODALS: "HIDE_MODALS",
+    LIKE_LIST: "LIKE_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -58,6 +60,8 @@ function GlobalStoreContextProvider(props) {
         listIdMarkedForDeletion: null,
         listMarkedForDeletion: null
     });
+
+    const [likes, setLikes] = useState(0);
     const history = useHistory();
 
     console.log("inside useGlobalStore");
@@ -209,6 +213,12 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null
                 });
             }
+            case GlobalStoreActionType.LIKE_LIST: {
+                return setStore({
+                    ...store,
+                    currentList: payload
+                });
+            }
             default:
                 return store;
         }
@@ -264,7 +274,7 @@ function GlobalStoreContextProvider(props) {
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
-        const response = await api.createPlaylist(newListName, [], auth.user.email);
+        const response = await api.createPlaylist(newListName, [], auth.user.email, []);
         console.log("createNewList response: " + response);
         if (response.status === 201) {
             tps.clearAllTransactions();
@@ -299,6 +309,49 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncLoadIdNamePairs();
+    }
+
+    store.like = async function (id, like) {
+        let response = await api.getPlaylistById(id);
+        if (response.data.success)
+        {
+            let playlist = response.data.playlist;
+            if (like)
+            {
+
+                if (!playlist.likes.includes(auth.user.email))
+                {
+                    playlist.likes.push(auth.user.email);
+                }
+                else
+                {
+                    let index = playlist.likes.indexOf(auth.user.email);
+                    if (index > -1)
+                    {
+                        playlist.likes.splice(index, 1);
+                    }
+                }
+
+            }
+            else
+            {
+                if (!playlist.dislikes.includes(auth.user.email))
+                {
+                    playlist.dislikes.push(auth.user.email);
+                }
+                else
+                {
+                    let index = playlist.dislikes.indexOf(auth.user.email);
+                    if (index > -1)
+                    {
+                        playlist.dislikes.splice(index, 1);
+                    }
+                }
+            }
+
+            let response2 = await api.updatePlaylistById(playlist._id, playlist);
+        }
+        store.loadIdNamePairs();
     }
 
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
@@ -370,7 +423,6 @@ function GlobalStoreContextProvider(props) {
     store.setCurrentList = function (id) {
         if (id === null)
         {
-            console.log("penis penis");
             storeReducer({
                 type: GlobalStoreActionType.SET_CURRENT_LIST,
                 payload: null
