@@ -368,6 +368,15 @@ function GlobalStoreContextProvider(props) {
     // FUNCTIONS ARE setCurrentList, addMoveItemTransaction, addUpdateItemTransaction,
     // moveItem, updateItem, updateCurrentList, undo, and redo
     store.setCurrentList = function (id) {
+        if (id === null)
+        {
+            console.log("penis penis");
+            storeReducer({
+                type: GlobalStoreActionType.SET_CURRENT_LIST,
+                payload: null
+            });
+            return;
+        }
         async function asyncSetCurrentList(id) {
             let response = await api.getPlaylistById(id);
             if (response.data.success) {

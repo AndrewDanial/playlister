@@ -7,7 +7,8 @@ import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
 import DownArrowIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import SongCard from './SongCard.js'
+import UpArrowIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import SongCard from './SongCard.js';
 import List from '@mui/material/List';
 import { Grid } from '@mui/material';
 import MUIRemoveSongModal from './MUIRemoveSongModal';
@@ -77,6 +78,12 @@ function ListCard(props) {
     function handleExpand(event) {
         event.stopPropagation();
         store.clear();
+        if (store.currentList && store.currentList._id === idNamePair._id)
+        {
+            store.setCurrentList(null);
+            return;
+        }
+
         store.setCurrentList(idNamePair._id)
     }
 
@@ -95,44 +102,10 @@ function ListCard(props) {
         modalJSX = <MUIEditSongModal />;
     }
     else if (store.isRemoveSongModalOpen()) {
-        console.log("Is remove song modal open")
         modalJSX = <MUIRemoveSongModal />;
     }
 
-    if (store.currentList === null) {
-        cardElement =
-            <ListItem
-                id={idNamePair._id}
-                key={idNamePair._id}
-                sx={{ marginTop: '15px', display: 'flex', p: 1 }}
-                style={{ width: '100%', fontSize: '48pt' }}
-                button
-                onClick={(event) => {
-                    handleLoadList(event, idNamePair._id)
-                }}
-            >
-                <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
-                <Box sx={{ p: 1 }}>
-                    <IconButton onClick={handleExpand}>
-                        <DownArrowIcon style={{ fontSize: '36pt' }} />
-                    </IconButton>
-                </Box>
-                <Box sx={{ p: 1 }}>
-                    <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                        <EditIcon style={{ fontSize: '36pt' }} />
-                    </IconButton>
-                </Box>
-                <Box sx={{ p: 1 }}>
-                    <IconButton onClick={(event) => {
-                        handleDeleteList(event, idNamePair._id)
-                    }} aria-label='delete'>
-                        <DeleteIcon style={{ fontSize: '36pt' }} />
-                    </IconButton>
-                </Box>
-            </ListItem>
-    }
-    else {
-        cardElement =
+    cardElement =
             <ListItem
                 id={idNamePair._id}
                 key={idNamePair._id}
@@ -151,12 +124,11 @@ function ListCard(props) {
                     <Grid item xs={12}>
                         <Grid container direction="column">
                             {
-                                idNamePair._id === store.currentList._id ? <Box>
+                                store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
                                     <List
                                         id="playlist-cards"
                                         sx={{ width: '100%', bgcolor: 'background.paper' }}
                                     >
-
                                         {
                                             store.currentList.songs.map((song, index) => (
                                                 <Grid item xs={12}>
@@ -173,7 +145,7 @@ function ListCard(props) {
 
                                     </List>
                                     {modalJSX}
-                                </Box> : <Box></Box>
+                                </Box> : null
                             }
 
                         </Grid>
@@ -183,7 +155,12 @@ function ListCard(props) {
                     <Grid item xs={12} style={{ display: "flex" }}>
                         <Box sx={{ p: 1 }}>
                             <IconButton onClick={handleExpand}>
-                                <DownArrowIcon style={{ fontSize: '36pt' }} />
+                                {
+                                  store.currentList && store.currentList._id === idNamePair._id ?
+                                  <UpArrowIcon style={{ fontSize: '36pt' }} />
+                                  : <DownArrowIcon style={{ fontSize: '36pt' }} />
+                                }
+
                             </IconButton>
                         </Box>
                         <Box sx={{ p: 1 }}>
@@ -204,9 +181,6 @@ function ListCard(props) {
 
             </ListItem>
 
-
-
-    }
 
 
     if (editActive) {

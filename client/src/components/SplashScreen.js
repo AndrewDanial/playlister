@@ -6,8 +6,9 @@ export default function SplashScreen() {
     const buttonStyle = {
         marginLeft: "10%",
         marginRight: "10%",
-        width: "500px",
-        height: "100px"
+        width: "20vw",
+        height: "10vh",
+        transform: "translate(0, -50%)"
     }
 
     return (
