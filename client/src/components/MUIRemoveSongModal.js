@@ -28,6 +28,7 @@ export default function MUIRemoveSongModal() {
 
     let modalClass = "modal modal-dialog";
     if (store.isRemoveSongModalOpen()) {
+        console.log("This is so true");
         modalClass += " is-visible";
     }
     let songTitle = "";

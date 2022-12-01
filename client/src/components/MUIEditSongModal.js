@@ -37,14 +37,17 @@ export default function MUIEditSongModal() {
     }
 
     function handleUpdateTitle(event) {
+        event.stopPropagation();
         setTitle(event.target.value);
     }
 
     function handleUpdateArtist(event) {
+        event.stopPropagation();
         setArtist(event.target.value);
     }
 
     function handleUpdateYouTubeId(event) {
+        event.stopPropagation();
         setYouTubeId(event.target.value);
     }
 

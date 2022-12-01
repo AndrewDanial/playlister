@@ -10,6 +10,8 @@ import DownArrowIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import SongCard from './SongCard.js'
 import List from '@mui/material/List';
 import { Grid } from '@mui/material';
+import MUIRemoveSongModal from './MUIRemoveSongModal';
+import MUIEditSongModal from './MUIEditSongModal';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -25,17 +27,20 @@ function ListCard(props) {
     const { idNamePair, selected } = props;
 
     function handleLoadList(event, id) {
-        console.log("handleLoadList for " + id);
-        if (!event.target.disabled) {
-            let _id = event.target.id;
-            if (_id.indexOf('list-card-text-') >= 0)
-                _id = ("" + _id).substring("list-card-text-".length);
+        if (store.currentModal === "NONE") {
+            console.log("handleLoadList for " + id);
+            if (!event.target.disabled) {
+                let _id = event.target.id;
+                if (_id.indexOf('list-card-text-') >= 0)
+                    _id = ("" + _id).substring("list-card-text-".length);
 
-            console.log("load " + event.target.id);
+                console.log("load " + event.target.id);
 
-            // CHANGE THE CURRENT LIST
-            store.setCurrentList(id);
+                // CHANGE THE CURRENT LIST
+                store.setCurrentList(id);
+            }
         }
+
     }
 
     function handleToggleEdit(event) {
@@ -71,6 +76,7 @@ function ListCard(props) {
 
     function handleExpand(event) {
         event.stopPropagation();
+        store.clear();
         store.setCurrentList(idNamePair._id)
     }
 
@@ -83,6 +89,15 @@ function ListCard(props) {
         cardStatus = true;
     }
     let cardElement = "";
+
+    let modalJSX = "";
+    if (store.isEditSongModalOpen()) {
+        modalJSX = <MUIEditSongModal />;
+    }
+    else if (store.isRemoveSongModalOpen()) {
+        console.log("Is remove song modal open")
+        modalJSX = <MUIRemoveSongModal />;
+    }
 
     if (store.currentList === null) {
         cardElement =
@@ -157,10 +172,12 @@ function ListCard(props) {
                                         }
 
                                     </List>
+                                    {modalJSX}
                                 </Box> : <Box></Box>
                             }
 
                         </Grid>
+
                     </Grid>
 
                     <Grid item xs={12} style={{ display: "flex" }}>
@@ -182,7 +199,9 @@ function ListCard(props) {
                             </IconButton>
                         </Box>
                     </Grid>
+
                 </Grid >
+
             </ListItem>
 
 
