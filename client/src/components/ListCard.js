@@ -13,6 +13,8 @@ import List from '@mui/material/List';
 import { Grid } from '@mui/material';
 import MUIRemoveSongModal from './MUIRemoveSongModal';
 import MUIEditSongModal from './MUIEditSongModal';
+import ThumbsUp from '@mui/icons-material/ThumbUp';
+import ThumbsDown from '@mui/icons-material/ThumbDown';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -25,9 +27,11 @@ function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
+    const [likes, setLike] = useState(0);
+    const [dislikes, setDislike] = useState(0);
     const { idNamePair, selected } = props;
 
-    function handleLoadList(event, id) {
+    /*function handleLoadList(event, id) {
         if (store.currentModal === "NONE") {
             console.log("handleLoadList for " + id);
             if (!event.target.disabled) {
@@ -42,7 +46,7 @@ function ListCard(props) {
             }
         }
 
-    }
+    }*/
 
     function handleToggleEdit(event) {
         event.stopPropagation();
@@ -76,16 +80,25 @@ function ListCard(props) {
     }
 
     function handleExpand(event) {
-        event.stopPropagation();
-        store.clear();
-        if (store.currentList && store.currentList._id === idNamePair._id)
-        {
-            store.setCurrentList(null);
-            return;
+        if (store.currentModal === "NONE") {
+            event.stopPropagation();
+            store.clear();
+            if (store.currentList && store.currentList._id === idNamePair._id)
+            {
+                store.setCurrentList(null);
+                return;
+            }
+            store.setCurrentList(idNamePair._id);
         }
 
-        store.setCurrentList(idNamePair._id)
     }
+    function handlelike(event, liked)
+    {
+        event.stopPropagation();
+        console.log(likes)
+        liked ? setLike(likes+1) : setDislike(dislikes+1)
+    }
+
 
     let selectClass = "unselected-list-card";
     if (selected) {
@@ -113,13 +126,20 @@ function ListCard(props) {
                 style={{ width: '100%', fontSize: '48pt' }}
                 button
                 onClick={(event) => {
-                    handleLoadList(event, idNamePair._id)
+                    handleExpand(event);
                 }}
             >
                 <Grid container>
-                    <Grid item xs={12}>
-                        <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
-                    </Grid>
+                        <Grid container xs={12}>
+                            <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => {
+                                    handlelike(event, true);
+                                }}
+                            ><ThumbsUp /></IconButton>{likes}</Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => {
+                                    handlelike(event, false);
+                                }}><ThumbsDown /></IconButton>{dislikes}</Grid>
+                        </Grid>
 
                     <Grid item xs={12}>
                         <Grid container direction="column">
