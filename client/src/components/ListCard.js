@@ -17,6 +17,7 @@ import ThumbsUp from '@mui/icons-material/ThumbUp';
 import ThumbsDown from '@mui/icons-material/ThumbDown';
 import AuthContext from '../auth';
 import EditToolbar from './EditToolbar';
+import Button from '@mui/material/Button'
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -123,12 +124,29 @@ function ListCard(props) {
         dislikes = idNamePair.playlist.dislikes.length;
     }
 
+    let listColor = "";
+
+
+    function handlePublish(event) {
+        event.stopPropagation();
+        store.publishPlaylist(idNamePair._id);
+    }
+
+    if (store.currentList && store.currentList._id === idNamePair._id) {
+        listColor = "rgb(52, 125, 235)";
+    }
+    else if (idNamePair.playlist.published) {
+        listColor = "rgb(235, 189, 52)";
+    }
+    else {
+        listColor = "rgb(155, 50, 219)"
+    }
     cardElement =
         <ListItem
             id={idNamePair._id}
             key={idNamePair._id}
             sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
-            style={{ fontSize: '48pt', backgroundColor: "rgb(52, 125, 235)" }}
+            style={{ fontSize: '48pt', backgroundColor: listColor }}
             button
             onClick={(event) => {
                 handleExpand(event);
@@ -147,8 +165,7 @@ function ListCard(props) {
 
                 <Grid item>
                     <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
-                    {console.log(idNamePair.playlist.publishedDate)}
-                    {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.published} </Box> : null}
+                    {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.publishedDate.substring(0, 10)} </Box> : null}
                 </Grid>
 
                 <Grid item xs={12}>
@@ -157,7 +174,7 @@ function ListCard(props) {
                             store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
                                 <List
                                     id="playlist-cards"
-                                    sx={{ width: '100%', backgroundColor: "rgb(52, 125, 235)" }}
+                                    sx={{ width: '100%', backgroundColor: listColor }}
                                 >
                                     {
                                         store.currentList.songs.map((song, index) => (
@@ -183,7 +200,14 @@ function ListCard(props) {
                 </Grid>
 
                 <Grid container xs={12}>
-                    <Grid item xs={8}>
+                    <Grid item xs={2}>
+                        {
+                            store.currentList !== null && idNamePair._id === store.currentList._id && !idNamePair.playlist.published ?
+                                <Button onClick={(event) => { handlePublish(event); }} sx={{ backgroundColor: "black" }}>Publish </Button> : null
+                        }
+
+                    </Grid>
+                    <Grid item xs={5}>
                         {
                             store.currentList !== null && idNamePair._id === store.currentList._id ? <EditToolbar /> : null
                         }

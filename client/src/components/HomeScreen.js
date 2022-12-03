@@ -107,7 +107,7 @@ const HomeScreen = () => {
                 </Grid>
             </Grid >
             <Grid container>
-                <Grid item xs={12} sm={6} sx={{ height: '75vh', overflow: 'scroll' }}>
+                <Grid item xs={12} sm={6} sx={{ height: '70vh', overflow: 'scroll' }}>
                     {
                         listCard
                     }
