@@ -32,7 +32,9 @@ export const GlobalStoreActionType = {
     EDIT_SONG: "EDIT_SONG",
     REMOVE_SONG: "REMOVE_SONG",
     HIDE_MODALS: "HIDE_MODALS",
-    LIKE_LIST: "LIKE_LIST"
+    LIKE_LIST: "LIKE_LIST",
+    EXPAND_LIST: "EXPAND_LIST",
+    SEARCH: "SEARCH"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -43,6 +45,12 @@ const CurrentModal = {
     DELETE_LIST: "DELETE_LIST",
     EDIT_SONG: "EDIT_SONG",
     REMOVE_SONG: "REMOVE_SONG"
+}
+
+const View = {
+    HOME: "HOME",
+    ALL: "ALL",
+    USERS: "USERS"
 }
 
 // WITH THIS WE'RE MAKING OUR GLOBAL DATA STORE
@@ -58,10 +66,11 @@ function GlobalStoreContextProvider(props) {
         newListCounter: 0,
         listNameActive: false,
         listIdMarkedForDeletion: null,
-        listMarkedForDeletion: null
+        listMarkedForDeletion: null,
+        currentView: View.HOME,
+        searchCriteria: null,
     });
 
-    const [likes, setLikes] = useState(0);
     const history = useHistory();
 
     console.log("inside useGlobalStore");
@@ -86,7 +95,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -100,7 +110,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 })
             }
             // CREATE A NEW LIST
@@ -114,7 +125,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter + 1,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -128,7 +140,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -142,7 +155,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: payload.id,
-                    listMarkedForDeletion: payload.playlist
+                    listMarkedForDeletion: payload.playlist,
+                    searchCriteria: store.searchCriteria
                 });
             }
             // UPDATE A LIST
@@ -156,7 +170,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             // START EDITING A LIST NAME
@@ -170,7 +185,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: true,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             //
@@ -184,7 +200,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             case GlobalStoreActionType.REMOVE_SONG: {
@@ -197,7 +214,8 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             case GlobalStoreActionType.HIDE_MODALS: {
@@ -210,15 +228,23 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    searchCriteria: store.searchCriteria
                 });
             }
             case GlobalStoreActionType.LIKE_LIST: {
                 return setStore({
                     ...store,
                     currentList: payload.currentList,
-                    idNamePairs: payload.idNamePairs
+                    idNamePairs: payload.idNamePairs,
+                    searchCriteria: store.searchCriteria
                 });
+            }
+            case GlobalStoreActionType.SEARCH: {
+                return setStore({
+                    ...store,
+                    searchCriteria: payload
+                })
             }
             default:
                 return store;
@@ -319,6 +345,12 @@ function GlobalStoreContextProvider(props) {
             if (like) {
 
                 if (!playlist.likes.includes(auth.user.email)) {
+                    if (playlist.dislikes.includes(auth.user.email)) {
+                        let index = playlist.dislikes.indexOf(auth.user.email);
+                        if (index > -1) {
+                            playlist.dislikes.splice(index, 1);
+                        }
+                    }
                     playlist.likes.push(auth.user.email);
                 }
                 else {
@@ -331,6 +363,10 @@ function GlobalStoreContextProvider(props) {
             }
             else {
                 if (!playlist.dislikes.includes(auth.user.email)) {
+                    let index = playlist.likes.indexOf(auth.user.email);
+                    if (index > -1) {
+                        playlist.likes.splice(index, 1);
+                    }
                     playlist.dislikes.push(auth.user.email);
                 }
                 else {
@@ -363,21 +399,16 @@ function GlobalStoreContextProvider(props) {
             playlist.published = true;
             playlist.publishedDate = new Date();
             const response2 = await api.updatePlaylistById(id, playlist);
-            /*if (response2.data.success) {
-                const response3 = await api.getPlaylistPairs();
-                if (response3.data.success) {
-                    let pairsArray = response3.data.idNamePairs;
-                    storeReducer({
-                        type: GlobalStoreActionType.LIKE_LIST,
-                        payload: { idNamePairs: pairsArray, currentList: store.currentList }
-                    });
-                }
-
-            }*/
         }
         store.loadIdNamePairs();
     }
 
+    store.search = async function (searchCriteria) {
+        storeReducer({
+            type: GlobalStoreActionType.SEARCH,
+            payload: searchCriteria
+        });
+    }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
     // FUNCTIONS ARE markListForDeletion, deleteList, deleteMarkedList,

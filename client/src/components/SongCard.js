@@ -35,12 +35,13 @@ function SongCard(props) {
     }
     function handleRemoveSong(event) {
         event.stopPropagation();
-        store.showRemoveSongModal(index, song);
+        if (!store.currentList.published)
+            store.showRemoveSongModal(index, song);
     }
     function handleClick(event) {
         event.stopPropagation();
         // DOUBLE CLICK IS FOR SONG EDITING
-        if (event.detail === 2) {
+        if (event.detail === 2 && !store.currentList.published) {
             store.showEditSongModal(index, song);
         }
     }

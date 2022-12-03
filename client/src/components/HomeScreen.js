@@ -27,6 +27,7 @@ import SortIcon from '@mui/icons-material/Sort';
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
     const [sort, setSort] = useState(0);
+    const [text, setText] = useState("");
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
@@ -55,6 +56,16 @@ const HomeScreen = () => {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    function handleKeyPress(event) {
+        if (event.code == "Enter") {
+            store.search(text);
+        }
+    }
+
+    function handleUpdateText(event) {
+        setText(event.target.value);
+    }
     return (
 
         <div id="playlist-selector">
@@ -78,7 +89,7 @@ const HomeScreen = () => {
                                 </IconButton>
                             </Grid>
                             <Grid item xs={5}>
-                                <TextField fullWidth label="Search"></TextField>
+                                <TextField onChange={handleUpdateText} onKeyPress={handleKeyPress} fullWidth label="Search"></TextField>
                             </Grid>
                             <Grid item xs={2}>
 

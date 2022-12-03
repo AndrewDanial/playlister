@@ -30,7 +30,7 @@ function EditToolbar() {
     return (
         <div id="edit-toolbar">
             <Button
-                disabled={!store.canAddNewSong() || store.currentModal !== "NONE"}
+                disabled={!store.canAddNewSong() || store.currentModal !== "NONE" || store.currentList.published}
                 id='add-song-button'
                 onClick={handleAddNewSong}
                 sx={{ backgroundColor: "black" }}

@@ -33,8 +33,9 @@ function ListCard(props) {
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
 
-    /*function handleLoadList(event, id) {
+    function handleLoadList(event, id) {
         if (store.currentModal === "NONE") {
+            console.log(store.expandedList);
             console.log("handleLoadList for " + id);
             if (!event.target.disabled) {
                 let _id = event.target.id;
@@ -48,7 +49,7 @@ function ListCard(props) {
             }
         }
 
-    }*/
+    }
 
     function handleToggleEdit(event) {
         event.stopPropagation();
@@ -125,7 +126,14 @@ function ListCard(props) {
     }
 
     let listColor = "";
-
+    let likeButtonColor = "black";
+    let dislikeButtonColor = "black";
+    if (idNamePair.playlist.likes.includes(auth.user.email)) {
+        likeButtonColor = "green";
+    }
+    if (idNamePair.playlist.dislikes.includes(auth.user.email)) {
+        dislikeButtonColor = "red";
+    }
 
     function handlePublish(event) {
         event.stopPropagation();
@@ -142,108 +150,114 @@ function ListCard(props) {
         listColor = "rgb(155, 50, 219)"
     }
     cardElement =
-        <ListItem
-            id={idNamePair._id}
-            key={idNamePair._id}
-            sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
-            style={{ fontSize: '48pt', backgroundColor: listColor }}
-            button
-            onClick={(event) => {
-                handleExpand(event);
-            }}
-        >
-            <Grid container>
-                <Grid container xs={12}>
-                    <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
-                    <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp />
-                    </IconButton>{likes}
-                    </Grid>
-                    <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown />
-                    </IconButton>{dislikes}
-                    </Grid>
-                </Grid>
+        <Box>
+            {
+                store.searchCriteria === null || (store.searchCriteria && idNamePair.name.toLowerCase() === store.searchCriteria.toLowerCase()) ? <ListItem
+                    id={idNamePair._id}
+                    key={idNamePair._id}
+                    sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
+                    style={{ fontSize: '48pt', backgroundColor: listColor }}
+                    button
+                    onClick={(event) => {
+                        handleExpand(event);
+                    }}
+                >
+                    <Grid container>
+                        <Grid container xs={12}>
+                            <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp style={{ color: likeButtonColor }} />
+                            </IconButton>{likes}
+                            </Grid>
+                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown style={{ color: dislikeButtonColor }} />
+                            </IconButton>{dislikes}
+                            </Grid>
+                        </Grid>
 
-                <Grid item>
-                    <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
-                    {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.publishedDate.substring(0, 10)} </Box> : null}
-                </Grid>
+                        <Grid item>
+                            <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
+                            {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.publishedDate.substring(0, 10)} </Box> : null}
+                        </Grid>
 
-                <Grid item xs={12}>
-                    <Grid container direction="column">
-                        {
-                            store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
-                                <List
-                                    id="playlist-cards"
-                                    sx={{ width: '100%', backgroundColor: listColor }}
-                                >
-                                    {
-                                        store.currentList.songs.map((song, index) => (
-                                            <Grid item xs={12}>
-                                                <SongCard
-                                                    id={'playlist-song-' + (index)}
-                                                    key={'playlist-song-' + (index)}
-                                                    index={index}
-                                                    song={song}
-                                                />
-                                            </Grid>
-
-                                        ))
-                                    }
-
-                                </List>
-                                {modalJSX}
-
-                            </Box> : null
-                        }
-                    </Grid>
-
-                </Grid>
-
-                <Grid container xs={12}>
-                    <Grid item xs={2}>
-                        {
-                            store.currentList !== null && idNamePair._id === store.currentList._id && !idNamePair.playlist.published ?
-                                <Button onClick={(event) => { handlePublish(event); }} sx={{ backgroundColor: "black" }}>Publish </Button> : null
-                        }
-
-                    </Grid>
-                    <Grid item xs={5}>
-                        {
-                            store.currentList !== null && idNamePair._id === store.currentList._id ? <EditToolbar /> : null
-                        }
-
-                    </Grid>
-                    <Grid item xs={4} style={{ display: "flex" }}>
-
-                        <Box sx={{ p: 1 }}>
-                            <IconButton onClick={handleExpand}>
+                        <Grid item xs={12}>
+                            <Grid container direction="column">
                                 {
-                                    store.currentList && store.currentList._id === idNamePair._id ?
-                                        <UpArrowIcon style={{ fontSize: '36pt' }} />
-                                        : <DownArrowIcon style={{ fontSize: '36pt' }} />
+                                    store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
+                                        <List
+                                            id="playlist-cards"
+                                            sx={{ width: '100%', backgroundColor: listColor }}
+                                        >
+                                            {
+                                                store.currentList.songs.map((song, index) => (
+                                                    <Grid item xs={12}>
+                                                        <SongCard
+                                                            id={'playlist-song-' + (index)}
+                                                            key={'playlist-song-' + (index)}
+                                                            index={index}
+                                                            song={song}
+                                                        />
+                                                    </Grid>
+
+                                                ))
+                                            }
+
+                                        </List>
+                                        {modalJSX}
+
+                                    </Box> : null
+                                }
+                            </Grid>
+
+                        </Grid>
+
+                        <Grid container xs={12}>
+                            <Grid item xs={2}>
+                                {
+                                    store.currentList !== null && idNamePair._id === store.currentList._id && !idNamePair.playlist.published ?
+                                        <Button onClick={(event) => { handlePublish(event); }} sx={{ backgroundColor: "black" }}>Publish </Button> : null
                                 }
 
-                            </IconButton>
-                        </Box>
-                        <Box sx={{ p: 1 }}>
-                            <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                                <EditIcon style={{ fontSize: '36pt' }} />
-                            </IconButton>
-                        </Box>
-                        <Box sx={{ p: 1 }}>
-                            <IconButton onClick={(event) => {
-                                handleDeleteList(event, idNamePair._id)
-                            }} aria-label='delete'>
-                                <DeleteIcon style={{ fontSize: '36pt' }} />
-                            </IconButton>
-                        </Box>
-                    </Grid>
-                </Grid>
+                            </Grid>
+                            <Grid item xs={5}>
+                                {
+                                    store.currentList !== null && idNamePair._id === store.currentList._id ? <EditToolbar /> : null
+                                }
 
+                            </Grid>
+                            <Grid item xs={4} style={{ display: "flex" }}>
 
-            </Grid >
+                                <Box sx={{ p: 1 }}>
+                                    <IconButton onClick={handleExpand}>
+                                        {
+                                            store.currentList && store.currentList._id === idNamePair._id ?
+                                                <UpArrowIcon style={{ fontSize: '36pt' }} />
+                                                : <DownArrowIcon style={{ fontSize: '36pt' }} />
+                                        }
 
-        </ListItem>
+                                    </IconButton>
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    {
+                                        !idNamePair.playlist.published ?
+                                            <IconButton onClick={handleToggleEdit} aria-label='edit'>
+                                                <EditIcon style={{ fontSize: '36pt' }} />
+                                            </IconButton> : null
+                                    }
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <IconButton onClick={(event) => {
+                                        handleDeleteList(event, idNamePair._id)
+                                    }} aria-label='delete'>
+                                        <DeleteIcon style={{ fontSize: '36pt' }} />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </Grid >
+                </ListItem> : null
+            }
+
+        </Box>
+
 
 
 
