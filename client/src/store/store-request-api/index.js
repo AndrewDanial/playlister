@@ -29,7 +29,9 @@ export const createPlaylist = (newListName, newSongs, userEmail) => {
         songs: newSongs,
         ownerEmail: userEmail,
         likes: [],
-        dislikes: []
+        dislikes: [],
+        published: false,
+        publishedDate: new Date()
     })
 }
 export const deletePlaylistById = (id) => api.delete(`/playlist/${id}`)
@@ -38,7 +40,7 @@ export const getPlaylistPairs = () => api.get(`/playlistpairs/`)
 export const updatePlaylistById = (id, playlist) => {
     return api.put(`/playlist/${id}`, {
         // SPECIFY THE PAYLOAD
-        playlist : playlist
+        playlist: playlist
     })
 }
 

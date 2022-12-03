@@ -115,7 +115,7 @@ body {
   top: 10%;
   width: 100%;
   height: 80%;
-  background-color: var(--swatch-primary);
+  /*background-color: var(--swatch-primary);*/
 }
 
 #playlister-workspace {
@@ -179,8 +179,8 @@ body {
 
 .list-card:aria-disabled,
 .list-card[aria-disabled] {
-  border: 1px solid #999999;
-  background-color: #cccccc;
+  /*border: 1px solid #999999;*/
+  /*background-color: #cccccc;*/
   color: #666666;
   pointer-events: none;
 }

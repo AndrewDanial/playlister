@@ -15,6 +15,8 @@ import MUIRemoveSongModal from './MUIRemoveSongModal';
 import MUIEditSongModal from './MUIEditSongModal';
 import ThumbsUp from '@mui/icons-material/ThumbUp';
 import ThumbsDown from '@mui/icons-material/ThumbDown';
+import AuthContext from '../auth';
+import EditToolbar from './EditToolbar';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -25,6 +27,7 @@ import ThumbsDown from '@mui/icons-material/ThumbDown';
 */
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
@@ -78,11 +81,11 @@ function ListCard(props) {
     }
 
     function handleExpand(event) {
+        event.stopPropagation();
         if (store.currentModal === "NONE") {
-            event.stopPropagation();
+
             store.clear();
-            if (store.currentList && store.currentList._id === idNamePair._id)
-            {
+            if (store.currentList && store.currentList._id === idNamePair._id) {
                 store.setCurrentList(null);
                 return;
             }
@@ -91,8 +94,7 @@ function ListCard(props) {
 
     }
 
-    function handleLike(event, like)
-    {
+    function handleLike(event, like) {
         event.stopPropagation();
         store.like(idNamePair._id, like);
     }
@@ -116,72 +118,85 @@ function ListCard(props) {
     }
     let likes = 0;
     let dislikes = 0;
-    if (idNamePair.playlist)
-    {
+    if (idNamePair.playlist) {
         likes = idNamePair.playlist.likes.length;
         dislikes = idNamePair.playlist.dislikes.length;
     }
 
     cardElement =
-            <ListItem
-                id={idNamePair._id}
-                key={idNamePair._id}
-                sx={{ marginTop: '15px', display: 'flex', p: 1 }}
-                style={{ width: '100%', fontSize: '48pt' }}
-                button
-                onClick={(event) => {
-                    handleExpand(event);
-                }}
-            >
-                <Grid container>
-                        <Grid container xs={12}>
-                            <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp />
-                                </IconButton>{likes}
-                            </Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown />
-                                </IconButton>{dislikes}
-                            </Grid>
-                        </Grid>
+        <ListItem
+            id={idNamePair._id}
+            key={idNamePair._id}
+            sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
+            style={{ fontSize: '48pt', backgroundColor: "rgb(52, 125, 235)" }}
+            button
+            onClick={(event) => {
+                handleExpand(event);
+            }}
+        >
+            <Grid container>
+                <Grid container xs={12}>
+                    <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
+                    <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp />
+                    </IconButton>{likes}
+                    </Grid>
+                    <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown />
+                    </IconButton>{dislikes}
+                    </Grid>
+                </Grid>
 
-                    <Grid item xs={12}>
-                        <Grid container direction="column">
-                            {
-                                store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
-                                    <List
-                                        id="playlist-cards"
-                                        sx={{ width: '100%', bgcolor: 'background.paper' }}
-                                    >
-                                        {
-                                            store.currentList.songs.map((song, index) => (
-                                                <Grid item xs={12}>
-                                                    <SongCard
-                                                        id={'playlist-song-' + (index)}
-                                                        key={'playlist-song-' + (index)}
-                                                        index={index}
-                                                        song={song}
-                                                    />
-                                                </Grid>
+                <Grid item>
+                    <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
+                    {console.log(idNamePair.playlist.publishedDate)}
+                    {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.published} </Box> : null}
+                </Grid>
 
-                                            ))
-                                        }
+                <Grid item xs={12}>
+                    <Grid container direction="column">
+                        {
+                            store.currentList !== null && idNamePair._id === store.currentList._id ? <Box>
+                                <List
+                                    id="playlist-cards"
+                                    sx={{ width: '100%', backgroundColor: "rgb(52, 125, 235)" }}
+                                >
+                                    {
+                                        store.currentList.songs.map((song, index) => (
+                                            <Grid item xs={12}>
+                                                <SongCard
+                                                    id={'playlist-song-' + (index)}
+                                                    key={'playlist-song-' + (index)}
+                                                    index={index}
+                                                    song={song}
+                                                />
+                                            </Grid>
 
-                                    </List>
-                                    {modalJSX}
-                                </Box> : null
-                            }
+                                        ))
+                                    }
 
-                        </Grid>
+                                </List>
+                                {modalJSX}
 
+                            </Box> : null
+                        }
                     </Grid>
 
-                    <Grid item xs={12} style={{ display: "flex" }}>
+                </Grid>
+
+                <Grid container xs={12}>
+                    <Grid item xs={8}>
+                        {
+                            store.currentList !== null && idNamePair._id === store.currentList._id ? <EditToolbar /> : null
+                        }
+
+                    </Grid>
+                    <Grid item xs={4} style={{ display: "flex" }}>
+
                         <Box sx={{ p: 1 }}>
                             <IconButton onClick={handleExpand}>
                                 {
-                                  store.currentList && store.currentList._id === idNamePair._id ?
-                                  <UpArrowIcon style={{ fontSize: '36pt' }} />
-                                  : <DownArrowIcon style={{ fontSize: '36pt' }} />
+                                    store.currentList && store.currentList._id === idNamePair._id ?
+                                        <UpArrowIcon style={{ fontSize: '36pt' }} />
+                                        : <DownArrowIcon style={{ fontSize: '36pt' }} />
                                 }
 
                             </IconButton>
@@ -199,10 +214,12 @@ function ListCard(props) {
                             </IconButton>
                         </Box>
                     </Grid>
+                </Grid>
 
-                </Grid >
 
-            </ListItem>
+            </Grid >
+
+        </ListItem>
 
 
 

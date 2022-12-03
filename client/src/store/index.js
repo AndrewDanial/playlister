@@ -216,7 +216,8 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.LIKE_LIST: {
                 return setStore({
                     ...store,
-                    currentList: payload
+                    currentList: payload.currentList,
+                    idNamePairs: payload.idNamePairs
                 });
             }
             default:
@@ -274,7 +275,7 @@ function GlobalStoreContextProvider(props) {
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
-        const response = await api.createPlaylist(newListName, [], auth.user.email, []);
+        const response = await api.createPlaylist(newListName, [], auth.user.email);
         console.log("createNewList response: " + response);
         if (response.status === 201) {
             tps.clearAllTransactions();
@@ -313,45 +314,46 @@ function GlobalStoreContextProvider(props) {
 
     store.like = async function (id, like) {
         let response = await api.getPlaylistById(id);
-        if (response.data.success)
-        {
+        if (response.data.success) {
             let playlist = response.data.playlist;
-            if (like)
-            {
+            if (like) {
 
-                if (!playlist.likes.includes(auth.user.email))
-                {
+                if (!playlist.likes.includes(auth.user.email)) {
                     playlist.likes.push(auth.user.email);
                 }
-                else
-                {
+                else {
                     let index = playlist.likes.indexOf(auth.user.email);
-                    if (index > -1)
-                    {
+                    if (index > -1) {
                         playlist.likes.splice(index, 1);
                     }
                 }
 
             }
-            else
-            {
-                if (!playlist.dislikes.includes(auth.user.email))
-                {
+            else {
+                if (!playlist.dislikes.includes(auth.user.email)) {
                     playlist.dislikes.push(auth.user.email);
                 }
-                else
-                {
+                else {
                     let index = playlist.dislikes.indexOf(auth.user.email);
-                    if (index > -1)
-                    {
+                    if (index > -1) {
                         playlist.dislikes.splice(index, 1);
                     }
                 }
             }
 
             let response2 = await api.updatePlaylistById(playlist._id, playlist);
+            if (response2.data.success) {
+                const response = await api.getPlaylistPairs();
+                if (response.data.success) {
+                    let pairsArray = response.data.idNamePairs;
+                    storeReducer({
+                        type: GlobalStoreActionType.LIKE_LIST,
+                        payload: { idNamePairs: pairsArray, currentList: store.currentList }
+                    });
+                }
+
+            }
         }
-        store.loadIdNamePairs();
     }
 
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
@@ -421,8 +423,7 @@ function GlobalStoreContextProvider(props) {
     // FUNCTIONS ARE setCurrentList, addMoveItemTransaction, addUpdateItemTransaction,
     // moveItem, updateItem, updateCurrentList, undo, and redo
     store.setCurrentList = function (id) {
-        if (id === null)
-        {
+        if (id === null) {
             storeReducer({
                 type: GlobalStoreActionType.SET_CURRENT_LIST,
                 payload: null

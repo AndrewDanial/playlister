@@ -33,6 +33,7 @@ function EditToolbar() {
                 disabled={!store.canAddNewSong() || store.currentModal !== "NONE"}
                 id='add-song-button'
                 onClick={handleAddNewSong}
+                sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <AddIcon />
             </Button>
@@ -40,6 +41,7 @@ function EditToolbar() {
                 disabled={!store.canUndo() || store.currentModal !== "NONE"}
                 id='undo-button'
                 onClick={handleUndo}
+                sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <UndoIcon />
             </Button>
@@ -47,6 +49,7 @@ function EditToolbar() {
                 disabled={!store.canRedo() || store.currentModal !== "NONE"}
                 id='redo-button'
                 onClick={handleRedo}
+                sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <RedoIcon />
             </Button>
@@ -54,6 +57,7 @@ function EditToolbar() {
                 disabled={!store.canClose() || store.currentModal !== "NONE"}
                 id='close-button'
                 onClick={handleClose}
+                sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <CloseIcon />
             </Button>

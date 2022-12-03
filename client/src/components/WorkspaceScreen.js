@@ -51,7 +51,7 @@ function WorkspaceScreen() {
         }
     }*/
 
-    return (
+    return (/*
         <Box>
             <List
                 id="playlist-cards"
@@ -69,7 +69,8 @@ function WorkspaceScreen() {
                 }
             </List>
             {modalJSX}
-        </Box>
+        </Box>*/
+        null
     )
 }
 
