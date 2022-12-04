@@ -30,7 +30,8 @@ const HomeScreen = () => {
     const [text, setText] = useState("");
     useEffect(() => {
         store.loadIdNamePairs();
-    }, []);
+        store.sort(sort);
+    }, [sort]);
 
     let sortHandler = (event) => {
         setSort(event.target.value);

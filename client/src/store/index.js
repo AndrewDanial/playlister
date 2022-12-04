@@ -34,7 +34,8 @@ export const GlobalStoreActionType = {
     HIDE_MODALS: "HIDE_MODALS",
     LIKE_LIST: "LIKE_LIST",
     EXPAND_LIST: "EXPAND_LIST",
-    SEARCH: "SEARCH"
+    SEARCH: "SEARCH",
+    SORT: "SORT"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -69,6 +70,7 @@ function GlobalStoreContextProvider(props) {
         listMarkedForDeletion: null,
         currentView: View.HOME,
         searchCriteria: null,
+        sortingCriteria: 0,
     });
 
     const history = useHistory();
@@ -244,7 +246,14 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     ...store,
                     searchCriteria: payload
-                })
+                });
+            }
+            case GlobalStoreActionType.SORT: {
+                return setStore({
+                    ...store,
+                    sortingCriteria: payload.sortingCriteria,
+                    idNamePairs: payload.idNamePairs
+                });
             }
             default:
                 return store;
@@ -408,6 +417,47 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.SEARCH,
             payload: searchCriteria
         });
+    }
+
+    store.sort = async function (sortingCriteria) {
+        let response = await api.getPlaylistPairs();
+        if (response.data.success) {
+            let pairs = response.data.idNamePairs;
+            console.log(sortingCriteria);
+            switch (sortingCriteria) {
+                case 1: {
+                    pairs = pairs.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+                    break;
+                }
+                case 2: {
+                    pairs = pairs.sort((a, b) => (a.playlist.publishedDate > b.playlist.publishedDate) ? -1 : a.playlist.publishedDate < b.playlist.publishedDate ? 1 : 0);
+                    break;
+                }
+                case 3: {
+                    pairs = pairs.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+                    break;
+                }
+                case 4: {
+                    pairs = pairs.sort((a, b) => a.playlist.likes.length > b.playlist.likes.length ? -1 : a.playlist.likes.length < b.playlist.likes.length ? 1 : 0);
+                    break;
+                }
+                case 5: {
+                    pairs = pairs.sort((a, b) => a.playlist.dislikes.length > b.playlist.dislikes.length ? -1 : a.playlist.dislikes.length < b.playlist.dislikes.length ? 1 : 0);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            storeReducer({
+                type: GlobalStoreActionType.SORT,
+                payload: {
+                    idNamePairs: pairs,
+                    sortingCriteria: sortingCriteria
+                }
+            })
+        }
+
     }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
