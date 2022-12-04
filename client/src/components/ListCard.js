@@ -32,7 +32,9 @@ function ListCard(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
-
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
     function handleLoadList(event, id) {
         if (store.currentModal === "NONE") {
             console.log(store.expandedList);
@@ -152,7 +154,7 @@ function ListCard(props) {
     cardElement =
         <Box>
             {
-                store.searchCriteria === null || (store.searchCriteria && idNamePair.name.toLowerCase() === store.searchCriteria.toLowerCase()) ? <ListItem
+                store.searchCriteria === null || (store.searchCriteria && idNamePair.name.toLowerCase().includes(store.searchCriteria.toLowerCase())) ? <ListItem
                     id={idNamePair._id}
                     key={idNamePair._id}
                     sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
@@ -175,7 +177,7 @@ function ListCard(props) {
 
                         <Grid item>
                             <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
-                            {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {idNamePair.playlist.publishedDate.substring(0, 10)} </Box> : null}
+                            {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {new Date(idNamePair.playlist.publishedDate).toLocaleString('en-US', { timezone: "America/New_York", month: 'short', day: '2-digit', year: 'numeric' })} </Box> : null}
                         </Grid>
 
                         <Grid item xs={12}>
