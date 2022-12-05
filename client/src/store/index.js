@@ -242,20 +242,23 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.SEARCH: {
                 return setStore({
                     ...store,
-                    searchCriteria: payload
+                    searchCriteria: payload,
+                    currentView: store.currentView
                 });
             }
             case GlobalStoreActionType.SORT: {
                 return setStore({
                     ...store,
                     sortingCriteria: payload.sortingCriteria,
-                    idNamePairs: payload.idNamePairs
+                    idNamePairs: payload.idNamePairs,
+                    currentView: payload.currentView
                 });
             }
             case GlobalStoreActionType.COMMENT: {
                 return setStore({
                     ...store,
-                    currentList: payload
+                    currentList: payload,
+                    currentView: store.currentView
                 });
             }
             case GlobalStoreActionType.SET_VIEW: {
@@ -361,11 +364,13 @@ function GlobalStoreContextProvider(props) {
 
     store.like = async function (id, like) {
         let response = "";
+        console.log(store);
+        console.log(store.currentView);
         if (store.currentView === 1)
             response = await api.getPlaylistById(id);
-        else if (store.currentView === 2 || store.currentView === 3)
+        else
             response = await api.getPlaylists();
-
+        console.log(response);
         if (response.data.success) {
             let playlist = "";
 
@@ -373,10 +378,10 @@ function GlobalStoreContextProvider(props) {
             if (store.currentView === 1) {
                 playlist = response.data.playlist;
             }
-            else if (store.currentView === 2 || store.currentView === 3) {
+            else {
                 console.log(id + " main id");
                 let pairs = response.data.idNamePairs;
-                console.log(pairs)
+                console.log(pairs + " woah pairs")
                 for (let element of pairs) {
                     console.log(element);
                     if (element._id === id) {
@@ -385,9 +390,8 @@ function GlobalStoreContextProvider(props) {
                     }
                 }
             }
-            console.log(playlist);
             if (like) {
-
+                console.log(playlist + " liked lists!")
                 if (!playlist.likes.includes(auth.user.email)) {
                     if (playlist.dislikes.includes(auth.user.email)) {
                         let index = playlist.dislikes.indexOf(auth.user.email);
@@ -424,9 +428,13 @@ function GlobalStoreContextProvider(props) {
 
             let response2 = await api.updatePlaylistById(playlist._id, playlist);
             if (response2.data.success) {
-                const response = await api.getPlaylistPairs();
-                if (response.data.success) {
-                    let pairsArray = response.data.idNamePairs;
+                let response3 = "";
+                if (store.currentView === 1)
+                    response3 = await api.getPlaylistPairs();
+                else
+                    response3 = await api.getPlaylists();
+                if (response3.data.success) {
+                    let pairsArray = response3.data.idNamePairs;
                     storeReducer({
                         type: GlobalStoreActionType.LIKE_LIST,
                         payload: { idNamePairs: pairsArray, currentList: store.currentList }
@@ -477,17 +485,26 @@ function GlobalStoreContextProvider(props) {
 
 
     store.sort = async function (sortingCriteria) {
-        let response = await api.getPlaylistPairs();
+        let response = "";
+        console.log(store.currentView + " in sort");
+        if (store.currentView === 1)
+            response = await api.getPlaylistPairs();
+        else {
+            console.log("yuh")
+
+            response = await api.getPlaylists();
+        }
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
-            console.log(sortingCriteria);
+            console.log(sortingCriteria + " sorting criteria");
             switch (sortingCriteria) {
                 case 1: {
                     pairs = pairs.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
                     break;
                 }
                 case 2: {
-                    pairs = pairs.sort((a, b) => (a.playlist.publishedDate > b.playlist.publishedDate) ? -1 : a.playlist.publishedDate < b.playlist.publishedDate ? 1 : 0);
+                    pairs = pairs.sort((a, b) => (new Date(a.playlist.publishedDate) > new Date(b.playlist.publishedDate)) ? -1 :
+                        (new Date(a.playlist.publishedDate) < new Date(b.playlist.publishedDate)) ? 1 : 0);
                     break;
                 }
                 case 3: {
@@ -505,14 +522,17 @@ function GlobalStoreContextProvider(props) {
                 default:
                     break;
             }
-
+            console.log("BEFORE")
+            console.log(pairs);
             storeReducer({
                 type: GlobalStoreActionType.SORT,
                 payload: {
                     idNamePairs: pairs,
-                    sortingCriteria: sortingCriteria
+                    sortingCriteria: sortingCriteria,
+                    currentView: store.currentView
                 }
-            })
+            });
+            console.log("post reducer stress disorder");
         }
 
     }
@@ -522,8 +542,18 @@ function GlobalStoreContextProvider(props) {
         // 2 = all lists (search by playlist name)
         // 3 = all lists (search by username)
         if (viewType === 1) {
-            store.loadIdNamePairs();
-            return;
+            let response = await api.getPlaylistPairs();
+            if (response.data.success) {
+                let pairs = response.data.idNamePairs;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_VIEW,
+                    payload: {
+                        currentView: viewType,
+                        idNamePairs: pairs
+                    }
+                });
+                return;
+            }
         }
         let response = await api.getPlaylists();
         if (response.data.success) {

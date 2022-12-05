@@ -32,9 +32,6 @@ function ListCard(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
     function handleLoadList(event, id) {
         if (store.currentModal === "NONE") {
             console.log(store.expandedList);

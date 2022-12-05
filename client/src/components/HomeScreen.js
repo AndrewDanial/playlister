@@ -32,7 +32,7 @@ const HomeScreen = () => {
     const [text, setText] = useState("");
     const [comment, setComment] = useState("");
     useEffect(() => {
-        store.loadIdNamePairs();
+        //store.loadIdNamePairs();
         store.sort(sort);
     }, [sort]);
 
