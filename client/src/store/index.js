@@ -36,7 +36,8 @@ export const GlobalStoreActionType = {
     EXPAND_LIST: "EXPAND_LIST",
     SEARCH: "SEARCH",
     SORT: "SORT",
-    COMMENT: "COMMENT"
+    COMMENT: "COMMENT",
+    SET_VIEW: "SET_VIEW"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -49,11 +50,6 @@ const CurrentModal = {
     REMOVE_SONG: "REMOVE_SONG"
 }
 
-const View = {
-    HOME: "HOME",
-    ALL: "ALL",
-    USERS: "USERS"
-}
 
 // WITH THIS WE'RE MAKING OUR GLOBAL DATA STORE
 // AVAILABLE TO THE REST OF THE APPLICATION
@@ -69,7 +65,7 @@ function GlobalStoreContextProvider(props) {
         listNameActive: false,
         listIdMarkedForDeletion: null,
         listMarkedForDeletion: null,
-        currentView: View.HOME,
+        currentView: 1,
         searchCriteria: null,
         sortingCriteria: 0,
     });
@@ -262,6 +258,13 @@ function GlobalStoreContextProvider(props) {
                     currentList: payload
                 });
             }
+            case GlobalStoreActionType.SET_VIEW: {
+                return setStore({
+                    ...store,
+                    currentView: payload.currentView,
+                    idNamePairs: payload.idNamePairs,
+                })
+            }
             default:
                 return store;
         }
@@ -357,9 +360,32 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.like = async function (id, like) {
-        let response = await api.getPlaylistById(id);
+        let response = "";
+        if (store.currentView === 1)
+            response = await api.getPlaylistById(id);
+        else if (store.currentView === 2 || store.currentView === 3)
+            response = await api.getPlaylists();
+
         if (response.data.success) {
-            let playlist = response.data.playlist;
+            let playlist = "";
+
+            console.log(response.data);
+            if (store.currentView === 1) {
+                playlist = response.data.playlist;
+            }
+            else if (store.currentView === 2 || store.currentView === 3) {
+                console.log(id + " main id");
+                let pairs = response.data.idNamePairs;
+                console.log(pairs)
+                for (let element of pairs) {
+                    console.log(element);
+                    if (element._id === id) {
+                        playlist = element.playlist;
+                        break;
+                    }
+                }
+            }
+            console.log(playlist);
             if (like) {
 
                 if (!playlist.likes.includes(auth.user.email)) {
@@ -395,6 +421,7 @@ function GlobalStoreContextProvider(props) {
                 }
             }
 
+
             let response2 = await api.updatePlaylistById(playlist._id, playlist);
             if (response2.data.success) {
                 const response = await api.getPlaylistPairs();
@@ -416,6 +443,8 @@ function GlobalStoreContextProvider(props) {
             let playlist = response.data.playlist;
             playlist.published = true;
             playlist.publishedDate = new Date();
+            playlist.publisher = auth.user.username;
+            console.log(playlist);
             const response2 = await api.updatePlaylistById(id, playlist);
         }
         store.loadIdNamePairs();
@@ -486,6 +515,31 @@ function GlobalStoreContextProvider(props) {
             })
         }
 
+    }
+
+    store.setView = async function (viewType) {
+        // view type of 1 = home
+        // 2 = all lists (search by playlist name)
+        // 3 = all lists (search by username)
+        if (viewType === 1) {
+            store.loadIdNamePairs();
+            return;
+        }
+        let response = await api.getPlaylists();
+        if (response.data.success) {
+            let pairs = response.data.idNamePairs;
+            let filteredPairs = pairs.filter((element) => element.playlist.published === true);
+            console.log(filteredPairs);
+            if (viewType === 2 || viewType === 3) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_VIEW,
+                    payload: {
+                        currentView: viewType,
+                        idNamePairs: filteredPairs
+                    }
+                });
+            }
+        }
     }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE

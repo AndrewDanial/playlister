@@ -82,6 +82,27 @@ const HomeScreen = () => {
     function handleUpdateText(event) {
         setText(event.target.value);
     }
+
+    function changeCurrentView(view) {
+        switch (view) {
+            case 1: {
+                store.setView(1);
+                break;
+            }
+            case 2: {
+                store.setView(2);
+                break;
+            }
+            case 3: {
+                store.setView(3);
+                break;
+            }
+            default: {
+                store.setView(1);
+            }
+        }
+    }
+
     return (
 
         <div id="playlist-selector">
@@ -89,18 +110,18 @@ const HomeScreen = () => {
                 <Grid item xs={12}>
                     <ToolBar sx={{ backgroundColor: "rgb(120, 116, 113)" }}>
                         <Grid container xs={24}>
-                            <Grid item xs={1}>
-                                <IconButton>
+                            <Grid item xs={1} >
+                                <IconButton onClick={() => { changeCurrentView(1) }} >
                                     <HomeIcon />
                                 </IconButton>
                             </Grid>
-                            <Grid item xs={1}>
-                                <IconButton>
+                            <Grid item xs={1} >
+                                <IconButton onClick={() => { changeCurrentView(2) }} >
                                     <GroupsIcon />
                                 </IconButton>
                             </Grid>
-                            <Grid item xs={1}>
-                                <IconButton>
+                            <Grid item xs={1} >
+                                <IconButton onClick={() => { changeCurrentView(3) }} >
                                     <Person />
                                 </IconButton>
                             </Grid>
