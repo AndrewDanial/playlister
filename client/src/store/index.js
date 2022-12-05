@@ -35,7 +35,8 @@ export const GlobalStoreActionType = {
     LIKE_LIST: "LIKE_LIST",
     EXPAND_LIST: "EXPAND_LIST",
     SEARCH: "SEARCH",
-    SORT: "SORT"
+    SORT: "SORT",
+    COMMENT: "COMMENT"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -255,6 +256,12 @@ function GlobalStoreContextProvider(props) {
                     idNamePairs: payload.idNamePairs
                 });
             }
+            case GlobalStoreActionType.COMMENT: {
+                return setStore({
+                    ...store,
+                    currentList: payload
+                });
+            }
             default:
                 return store;
         }
@@ -306,6 +313,7 @@ function GlobalStoreContextProvider(props) {
         });
         history.push("/");
     }
+
 
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
@@ -419,6 +427,25 @@ function GlobalStoreContextProvider(props) {
             payload: searchCriteria
         });
     }
+
+    store.comment = async function (comment) {
+        let response = await api.getPlaylistById(store.currentList._id);
+        if (response.data.success) {
+            let playlist = response.data.playlist;
+            playlist.comments.push({
+                username: auth.user.username,
+                comment: comment
+            });
+            let response2 = await api.updatePlaylistById(store.currentList._id, playlist);
+            if (response2.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.COMMENT,
+                    payload: playlist
+                });
+            }
+        }
+    }
+
 
     store.sort = async function (sortingCriteria) {
         let response = await api.getPlaylistPairs();

@@ -176,7 +176,7 @@ function ListCard(props) {
                         </Grid>
 
                         <Grid item>
-                            <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.firstName} {auth.user.lastName} </Box>
+                            <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.username} </Box>
                             {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {new Date(idNamePair.playlist.publishedDate).toLocaleString('en-US', { timezone: "America/New_York", month: 'short', day: '2-digit', year: 'numeric' })} </Box> : null}
                         </Grid>
 

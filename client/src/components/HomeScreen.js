@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
 import MUIDeleteModal from './MUIDeleteModal'
+import CommentCard from './CommentCard'
+import AuthContext from '../auth'
 
 import List from '@mui/material/List';
 import { Grid, Icon, IconButton, Menu, TextField } from '@mui/material';
@@ -28,6 +30,7 @@ const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
     const [sort, setSort] = useState(0);
     const [text, setText] = useState("");
+    const [comment, setComment] = useState("");
     useEffect(() => {
         store.loadIdNamePairs();
         store.sort(sort);
@@ -61,6 +64,18 @@ const HomeScreen = () => {
     function handleKeyPress(event) {
         if (event.code == "Enter") {
             store.search(text);
+        }
+    }
+
+    const handleComment = (event) => {
+        setComment(event.target.value);
+    };
+
+    function handleKeyPressComment(event) {
+        if (event.code == "Enter") {
+            console.log(comment)
+            store.comment(comment);
+            setComment("");
         }
     }
 
@@ -128,6 +143,7 @@ const HomeScreen = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
+
                     <TabContext value={value}>
                         <Box>
                             <TabList onChange={handleChange}>
@@ -138,13 +154,44 @@ const HomeScreen = () => {
                                 PLAYER :D
                             </TabPanel>
                             <TabPanel value="1">
-                                COMMENTS! :D
+                                {
+                                    <Grid container direction="column">
+                                        {
+                                            store.currentList ? <List sx={{ height: "40vh", overflow: "scroll", overflowX: "hidden", maxWidth: "90%" }}>
+                                                {
+                                                    store.currentList.comments.map((comment) => (
+                                                        CommentCard(comment.username, comment.comment)
+                                                    ))
+                                                }
+
+
+                                            </List> : <Box>No playlist selected :( </Box>
+
+
+
+                                        }
+                                        <Grid item xs={12}>
+                                            {
+                                                value === "1" && store.currentList ? <TextField onChange={(event) => { handleComment(event) }} onKeyPress={handleKeyPressComment}
+                                                    fullWidth
+                                                    sx={{ marginTop: "15%" }}
+                                                    label="Type a comment here!">
+
+                                                </TextField> : null
+                                            }
+                                        </Grid>
+                                    </Grid>
+                                }
+
                             </TabPanel>
                         </Box>
+
+
                     </TabContext>
 
+
                 </Grid>
-            </Grid>
+            </Grid >
 
         </div >
     )
