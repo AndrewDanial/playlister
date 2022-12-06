@@ -73,7 +73,10 @@ const HomeScreen = () => {
 
     function handleKeyPressComment(event) {
         if (event.code == "Enter") {
-            console.log(comment)
+            if (!store.currentList.published) {
+                event.target.value = "Can't comment on an unpublished playlist";
+                return;
+            }
             store.comment(comment);
         }
     }

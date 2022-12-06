@@ -164,12 +164,17 @@ function ListCard(props) {
                     <Grid container>
                         <Grid container xs={12}>
                             <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp style={{ color: likeButtonColor }} />
-                            </IconButton>{likes}
-                            </Grid>
-                            <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown style={{ color: dislikeButtonColor }} />
-                            </IconButton>{dislikes}
-                            </Grid>
+                            {
+                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp style={{ color: likeButtonColor }} />
+                                </IconButton>{likes}
+                                </Grid> : null
+                            }
+                            {
+                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown style={{ color: dislikeButtonColor }} />
+                                </IconButton>{dislikes}
+                                </Grid> : null
+                            }
+
                         </Grid>
 
                         <Grid item>

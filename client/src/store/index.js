@@ -485,6 +485,7 @@ function GlobalStoreContextProvider(props) {
 
     store.comment = async function (comment) {
         let response = "";
+
         if (store.currentView === 1) {
             console.log("it is in deed 1 d12e12e")
             response = await api.getPlaylistById(store.currentList._id);
