@@ -245,7 +245,7 @@ function ListCard(props) {
                                 </Box>
                                 <Box sx={{ p: 1 }}>
                                     {
-                                        idNamePair.playlist.published && idNamePair.playlist.publisher === auth.user.username ? <IconButton onClick={(event) => {
+                                        idNamePair.playlist.published && idNamePair.playlist.publisher === auth.user.username || !idNamePair.published ? <IconButton onClick={(event) => {
                                             handleDeleteList(event, idNamePair._id)
                                         }} aria-label='delete'>
                                             <DeleteIcon style={{ fontSize: '36pt' }} />
