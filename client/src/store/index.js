@@ -117,8 +117,8 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.CREATE_NEW_LIST: {
                 return setStore({
                     currentModal: CurrentModal.NONE,
-                    idNamePairs: store.idNamePairs,
-                    currentList: payload,
+                    idNamePairs: payload.idNamePairs,
+                    currentList: payload.currentList,
                     currentSongIndex: -1,
                     currentSong: null,
                     newListCounter: store.newListCounter + 1,
@@ -326,20 +326,43 @@ function GlobalStoreContextProvider(props) {
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         console.log("in here");
-        let newListName = "Untitled" + store.newListCounter;
-        const response = await api.createPlaylist(newListName, [], auth.user.email);
-        console.log("createNewList response: " + response);
-        if (response.status === 201) {
-            tps.clearAllTransactions();
-            let newList = response.data.playlist;
-            storeReducer({
-                type: GlobalStoreActionType.CREATE_NEW_LIST,
-                payload: newList
+        let ctr = 0;
+        let newListName = "Untitled " + ctr;
+        let response2 = await api.getPlaylistPairs();
+        if (response2.data.success) {
+            let pairs = response2.data.idNamePairs;
+            console.log(pairs);
+            for (let i in pairs)
+                for (let element of pairs) {
+                    console.log(element);
+                    if (element.name === newListName) {
+                        ctr += 1;
+                        newListName = "Untitled " + ctr;
+                        break;
+                    }
+                }
+
+            const response = await api.createPlaylist(newListName, [], auth.user.email);
+            console.log("createNewList response: " + response);
+            if (response.status === 201) {
+                tps.clearAllTransactions();
+                let newList = response.data.playlist;
+                let response3 = await api.getPlaylistPairs();
+                if (response3.data.success) {
+                    storeReducer({
+                        type: GlobalStoreActionType.CREATE_NEW_LIST,
+                        payload: {
+                            currentList: newList,
+                            idNamePairs: response3.data.idNamePairs
+                        }
+                    });
+                }
+
             }
-            );
+
 
             // IF IT'S A VALID LIST THEN LET'S START EDITING IT
-            history.push("/playlist/" + newList._id);
+            //history.push("/playlist/" + newList._id);
         }
         else {
             console.log("API FAILED TO CREATE A NEW LIST");

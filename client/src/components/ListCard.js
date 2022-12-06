@@ -280,12 +280,12 @@ function ListCard(props) {
                 autoFocus
             />
     }
-    if ((store.searchCriteria !== null && idNamePair.name.toLowerCase().includes(store.searchCriteria.toLowerCase())) && store.currentView <= 2) {
+    if ((store.searchCriteria && idNamePair.name.toLowerCase().includes(store.searchCriteria.toLowerCase())) && store.currentView <= 2) {
         return (
             cardElement
         );
     }
-    else if (store.searchCriteria !== null && idNamePair.playlist.publisher.toLowerCase().includes(store.searchCriteria.toLowerCase()) && store.currentView === 3) {
+    else if (store.searchCriteria && idNamePair.playlist.publisher.toLowerCase().includes(store.searchCriteria.toLowerCase()) && store.currentView === 3) {
         return (
             cardElement
         );
