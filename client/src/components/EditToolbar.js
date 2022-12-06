@@ -15,16 +15,20 @@ import CloseIcon from '@mui/icons-material/HighlightOff';
 function EditToolbar() {
     const { store } = useContext(GlobalStoreContext);
 
-    function handleAddNewSong() {
+    function handleAddNewSong(event) {
+        event.stopPropagation();
         store.addNewSong();
     }
-    function handleUndo() {
+    function handleUndo(event) {
+        event.stopPropagation();
         store.undo();
     }
-    function handleRedo() {
+    function handleRedo(event) {
+        event.stopPropagation();
         store.redo();
     }
-    function handleClose() {
+    function handleClose(event) {
+        event.stopPropagation();
         store.closeCurrentList();
     }
     return (
@@ -32,7 +36,7 @@ function EditToolbar() {
             <Button
                 disabled={!store.canAddNewSong() || store.currentModal !== "NONE" || store.currentList.published}
                 id='add-song-button'
-                onClick={handleAddNewSong}
+                onClick={(event) => { handleAddNewSong(event) }}
                 sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <AddIcon />
@@ -40,7 +44,7 @@ function EditToolbar() {
             <Button
                 disabled={!store.canUndo() || store.currentModal !== "NONE"}
                 id='undo-button'
-                onClick={handleUndo}
+                onClick={(event) => { handleUndo(event) }}
                 sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <UndoIcon />
@@ -48,18 +52,10 @@ function EditToolbar() {
             <Button
                 disabled={!store.canRedo() || store.currentModal !== "NONE"}
                 id='redo-button'
-                onClick={handleRedo}
+                onClick={(event) => { handleRedo(event) }}
                 sx={{ backgroundColor: "black" }}
                 variant="contained">
                 <RedoIcon />
-            </Button>
-            <Button
-                disabled={!store.canClose() || store.currentModal !== "NONE"}
-                id='close-button'
-                onClick={handleClose}
-                sx={{ backgroundColor: "black" }}
-                variant="contained">
-                <CloseIcon />
             </Button>
         </div>
     )

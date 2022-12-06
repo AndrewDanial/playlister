@@ -65,9 +65,9 @@ function GlobalStoreContextProvider(props) {
         listNameActive: false,
         listIdMarkedForDeletion: null,
         listMarkedForDeletion: null,
-        currentView: 1,
         searchCriteria: null,
         sortingCriteria: 0,
+        currentView: 1,
     });
 
     const history = useHistory();
@@ -171,7 +171,8 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
                     listMarkedForDeletion: null,
-                    searchCriteria: store.searchCriteria
+                    searchCriteria: store.searchCriteria,
+                    currentView: store.currentView,
                 });
             }
             // START EDITING A LIST NAME
@@ -401,6 +402,7 @@ function GlobalStoreContextProvider(props) {
 
             console.log(response.data);
             if (store.currentView === 1) {
+                console.log("this is the view")
                 playlist = response.data.playlist;
             }
             else {
@@ -411,13 +413,14 @@ function GlobalStoreContextProvider(props) {
                 for (let element of pairs) {
                     console.log(element);
                     if (element._id === id) {
+                        console.log("we broke")
                         playlist = element.playlist;
                         break;
                     }
                 }
             }
+            console.log(playlist);
             if (like) {
-                console.log(playlist + " liked lists!")
                 if (!playlist.likes.includes(auth.user.email)) {
                     if (playlist.dislikes.includes(auth.user.email)) {
                         let index = playlist.dislikes.indexOf(auth.user.email);
