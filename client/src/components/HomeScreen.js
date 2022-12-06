@@ -124,7 +124,10 @@ const HomeScreen = () => {
                                     </InputLabel>
                                     <Select value={sort} onChange={sortHandler}>
                                         <MenuItem value={1}>Name (A-Z)</MenuItem>
-                                        <MenuItem value={2}>Publish Date (Newest) </MenuItem>
+                                        {
+                                            store.currentView !== 1 ? <MenuItem value={2}>Publish Date (Newest) </MenuItem> : null
+                                        }
+
                                         <MenuItem value={3}>Listens (High - Low) </MenuItem>
                                         <MenuItem value={4}>Likes (High - Low) </MenuItem>
                                         <MenuItem value={5}>Dislikes (High - Low)</MenuItem>

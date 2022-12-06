@@ -244,11 +244,14 @@ function ListCard(props) {
                                     }
                                 </Box>
                                 <Box sx={{ p: 1 }}>
-                                    <IconButton onClick={(event) => {
-                                        handleDeleteList(event, idNamePair._id)
-                                    }} aria-label='delete'>
-                                        <DeleteIcon style={{ fontSize: '36pt' }} />
-                                    </IconButton>
+                                    {
+                                        idNamePair.playlist.published && idNamePair.playlist.publisher === auth.user.username ? <IconButton onClick={(event) => {
+                                            handleDeleteList(event, idNamePair._id)
+                                        }} aria-label='delete'>
+                                            <DeleteIcon style={{ fontSize: '36pt' }} />
+                                        </IconButton> : null
+                                    }
+
                                 </Box>
                             </Grid>
                         </Grid>
