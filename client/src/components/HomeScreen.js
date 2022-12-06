@@ -75,7 +75,6 @@ const HomeScreen = () => {
         if (event.code == "Enter") {
             console.log(comment)
             store.comment(comment);
-            setComment("");
         }
     }
 
@@ -84,23 +83,7 @@ const HomeScreen = () => {
     }
 
     function changeCurrentView(view) {
-        switch (view) {
-            case 1: {
-                store.setView(1);
-                break;
-            }
-            case 2: {
-                store.setView(2);
-                break;
-            }
-            case 3: {
-                store.setView(3);
-                break;
-            }
-            default: {
-                store.setView(1);
-            }
-        }
+        store.setView(view);
     }
 
     return (

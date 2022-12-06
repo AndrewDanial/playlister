@@ -151,7 +151,7 @@ function ListCard(props) {
     cardElement =
         <Box>
             {
-                store.searchCriteria === null || (store.searchCriteria && idNamePair.name.toLowerCase().includes(store.searchCriteria.toLowerCase())) ? <ListItem
+                <ListItem
                     id={idNamePair._id}
                     key={idNamePair._id}
                     sx={{ marginTop: '15px', display: 'flex', p: 1, borderRadius: "25px" }}
@@ -253,7 +253,7 @@ function ListCard(props) {
                             </Grid>
                         </Grid>
                     </Grid >
-                </ListItem> : null
+                </ListItem>
             }
 
         </Box>
@@ -280,9 +280,26 @@ function ListCard(props) {
                 autoFocus
             />
     }
-    return (
-        cardElement
-    );
+    if ((store.searchCriteria !== null && idNamePair.name.toLowerCase().includes(store.searchCriteria.toLowerCase())) && store.currentView <= 2) {
+        return (
+            cardElement
+        );
+    }
+    else if (store.searchCriteria !== null && idNamePair.playlist.publisher.toLowerCase().includes(store.searchCriteria.toLowerCase()) && store.currentView === 3) {
+        return (
+            cardElement
+        );
+    }
+    else if (store.searchCriteria === null) {
+        return (
+            cardElement
+        );
+    }
+    else {
+        return null;
+    }
+
+
 }
 
 export default ListCard;

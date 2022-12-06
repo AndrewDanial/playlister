@@ -125,7 +125,8 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
                     listMarkedForDeletion: null,
-                    searchCriteria: store.searchCriteria
+                    searchCriteria: store.searchCriteria,
+                    currentView: 1
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -236,7 +237,8 @@ function GlobalStoreContextProvider(props) {
                     ...store,
                     currentList: payload.currentList,
                     idNamePairs: payload.idNamePairs,
-                    searchCriteria: store.searchCriteria
+                    searchCriteria: store.searchCriteria,
+                    currentView: store.currentView
                 });
             }
             case GlobalStoreActionType.SEARCH: {
@@ -381,6 +383,7 @@ function GlobalStoreContextProvider(props) {
             else {
                 console.log(id + " main id");
                 let pairs = response.data.idNamePairs;
+                pairs = pairs.filter((element) => element.playlist.published === true);
                 console.log(pairs + " woah pairs")
                 for (let element of pairs) {
                     console.log(element);
@@ -428,18 +431,7 @@ function GlobalStoreContextProvider(props) {
 
             let response2 = await api.updatePlaylistById(playlist._id, playlist);
             if (response2.data.success) {
-                let response3 = "";
-                if (store.currentView === 1)
-                    response3 = await api.getPlaylistPairs();
-                else
-                    response3 = await api.getPlaylists();
-                if (response3.data.success) {
-                    let pairsArray = response3.data.idNamePairs;
-                    storeReducer({
-                        type: GlobalStoreActionType.LIKE_LIST,
-                        payload: { idNamePairs: pairsArray, currentList: store.currentList }
-                    });
-                }
+                store.sort(store.sortingCriteria);
 
             }
         }
@@ -466,7 +458,35 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.comment = async function (comment) {
-        let response = await api.getPlaylistById(store.currentList._id);
+        let response = "";
+        if (store.currentView === 1) {
+            console.log("it is in deed 1 d12e12e")
+            response = await api.getPlaylistById(store.currentList._id);
+        }
+        else {
+            response = await api.getPlaylists();
+            if (response.data.success) {
+                for (let element of response.data.idNamePairs) {
+                    console.log(element);
+                    if (element._id === store.currentList._id) {
+                        element.playlist.comments.push({
+                            username: auth.user.username,
+                            comment: comment
+                        });
+                        let response2 = await api.updatePlaylistById(store.currentList._id, element.playlist);
+                        if (response2.data.success) {
+                            storeReducer({
+                                type: GlobalStoreActionType.COMMENT,
+                                payload: element.playlist
+                            });
+                        }
+
+
+                    }
+                }
+                return;
+            }
+        }
         if (response.data.success) {
             let playlist = response.data.playlist;
             playlist.comments.push({
@@ -522,8 +542,11 @@ function GlobalStoreContextProvider(props) {
                 default:
                     break;
             }
-            console.log("BEFORE")
-            console.log(pairs);
+            if (store.currentView !== 1) {
+                console.log("yeah i filtered gwuibgweug");
+                pairs = pairs.filter((element) => element.playlist.published === true);
+            }
+
             storeReducer({
                 type: GlobalStoreActionType.SORT,
                 payload: {
@@ -541,6 +564,7 @@ function GlobalStoreContextProvider(props) {
         // view type of 1 = home
         // 2 = all lists (search by playlist name)
         // 3 = all lists (search by username)
+        console.log(store.currentView);
         if (viewType === 1) {
             let response = await api.getPlaylistPairs();
             if (response.data.success) {
@@ -646,7 +670,25 @@ function GlobalStoreContextProvider(props) {
             return;
         }
         async function asyncSetCurrentList(id) {
-            let response = await api.getPlaylistById(id);
+            let response = "";
+            if (store.currentView === 1)
+                response = await api.getPlaylistById(id);
+            else {
+                response = await api.getPlaylists();
+                if (response.data.success) {
+                    for (let element of response.data.idNamePairs) {
+                        console.log(element);
+                        if (element._id === id) {
+                            storeReducer({
+                                type: GlobalStoreActionType.SET_CURRENT_LIST,
+                                payload: element.playlist
+                            });
+                        }
+                    }
+                }
+
+                return;
+            }
             if (response.data.success) {
                 let playlist = response.data.playlist;
 
