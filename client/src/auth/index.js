@@ -1,5 +1,6 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, useContext } from "react";
 import { useHistory } from 'react-router-dom'
+import GlobalStoreContext from "../store";
 import api from './auth-request-api'
 
 const AuthContext = createContext();
@@ -11,6 +12,7 @@ export const AuthActionType = {
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
     REGISTER_USER: "REGISTER_USER",
+    GUEST: "CONTINUE_AS_GUEST",
     ERROR: "ERROR"
 }
 
@@ -18,10 +20,11 @@ function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        err: null
+        err: null,
+        isGuest: false
     });
     const history = useHistory();
-
+    const { store } = useContext(GlobalStoreContext);
     useEffect(() => {
         auth.getLoggedIn();
     }, []);
@@ -32,13 +35,15 @@ function AuthContextProvider(props) {
             case AuthActionType.GET_LOGGED_IN: {
                 return setAuth({
                     user: payload.user,
-                    loggedIn: payload.loggedIn
+                    loggedIn: payload.loggedIn,
+
                 });
             }
             case AuthActionType.LOGIN_USER: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true,
+                    isGuest: payload.isGuest
                 })
             }
             case AuthActionType.LOGOUT_USER: {
@@ -60,6 +65,14 @@ function AuthContextProvider(props) {
                     err: payload
                 })
             }
+            case AuthActionType.GUEST: {
+                return setAuth({
+                    user: null,
+                    loggedIn: true,
+                    err: false,
+                    isGuest: true
+                })
+            }
             default:
                 return auth;
         }
@@ -76,6 +89,16 @@ function AuthContextProvider(props) {
                 }
             });
         }
+    }
+
+    auth.continueAsGuest = async function () {
+        authReducer({
+            type: AuthActionType.LOGIN_USER,
+            payload: {
+                isGuest: true,
+                user: "Guest",
+            }
+        });
     }
 
     auth.registerUser = async function (firstName, lastName, username, email, password, passwordVerify) {
@@ -135,7 +158,7 @@ function AuthContextProvider(props) {
 
     auth.getUserInitials = function () {
         let initials = "";
-        if (auth.user) {
+        if (auth.user && !auth.isGuest) {
             initials += auth.user.firstName.charAt(0);
             initials += auth.user.lastName.charAt(0);
         }

@@ -37,7 +37,9 @@ export const GlobalStoreActionType = {
     SEARCH: "SEARCH",
     SORT: "SORT",
     COMMENT: "COMMENT",
-    SET_VIEW: "SET_VIEW"
+    SET_VIEW: "SET_VIEW",
+    PUBLISH_LIST: "PUBLISH_LIST",
+    GUEST: "GUEST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -55,6 +57,7 @@ const CurrentModal = {
 // AVAILABLE TO THE REST OF THE APPLICATION
 function GlobalStoreContextProvider(props) {
     // THESE ARE ALL THE THINGS OUR DATA STORE WILL MANAGE
+    const { auth } = useContext(AuthContext);
     const [store, setStore] = useState({
         currentModal: CurrentModal.NONE,
         idNamePairs: [],
@@ -67,7 +70,7 @@ function GlobalStoreContextProvider(props) {
         listMarkedForDeletion: null,
         searchCriteria: null,
         sortingCriteria: 0,
-        currentView: 1,
+        currentView: auth.isGuest ? 2 : 1,
     });
 
     const history = useHistory();
@@ -75,7 +78,7 @@ function GlobalStoreContextProvider(props) {
     console.log("inside useGlobalStore");
 
     // SINCE WE'VE WRAPPED THE STORE IN THE AUTH CONTEXT WE CAN ACCESS THE USER HERE
-    const { auth } = useContext(AuthContext);
+
     console.log("auth: " + auth);
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -141,7 +144,9 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     listIdMarkedForDeletion: null,
                     listMarkedForDeletion: null,
-                    searchCriteria: store.searchCriteria
+                    searchCriteria: store.searchCriteria,
+                    currentView: store.currentView,
+                    sortingCriteria: store.sortingCriteria
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -156,7 +161,8 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     listIdMarkedForDeletion: payload.id,
                     listMarkedForDeletion: payload.playlist,
-                    searchCriteria: store.searchCriteria
+                    searchCriteria: store.searchCriteria,
+                    currentView: store.currentView
                 });
             }
             // UPDATE A LIST
@@ -269,7 +275,25 @@ function GlobalStoreContextProvider(props) {
                     ...store,
                     currentView: payload.currentView,
                     idNamePairs: payload.idNamePairs,
-                })
+                    currentList: store.currentList,
+                    sortingCriteria: payload.sortingCriteria,
+                });
+            }
+            case GlobalStoreActionType.GUEST: {
+                return setStore({
+                    currentView: payload.currentView,
+                    idNamePairs: payload.idNamePairs,
+                    currentModal: CurrentModal.NONE,
+                    currentList: null,
+                    currentSongIndex: -1,
+                    currentSong: null,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    listIdMarkedForDeletion: null,
+                    listMarkedForDeletion: null,
+                    searchCriteria: null,
+                    sortingCriteria: 0,
+                });
             }
             default:
                 return store;
@@ -375,10 +399,10 @@ function GlobalStoreContextProvider(props) {
         async function asyncLoadIdNamePairs() {
             const response = await api.getPlaylistPairs();
             if (response.data.success) {
-                let pairsArray = response.data.idNamePairs;
+                let pairs = response.data.idNamePairs;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                    payload: pairsArray
+                    payload: pairs
                 });
             }
             else {
@@ -386,6 +410,25 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncLoadIdNamePairs();
+    }
+
+    store.continueAsGuest = async function () {
+        auth.continueAsGuest();
+        let response = await api.getPlaylists();
+        if (response.data.success) {
+            let pairs = response.data.idNamePairs;
+            let filteredPairs = pairs.filter((element) => element.playlist.published === true);
+            console.log(filteredPairs);
+            storeReducer({
+                type: GlobalStoreActionType.GUEST,
+                payload: {
+                    currentView: 2,
+                    idNamePairs: filteredPairs
+                }
+            });
+
+        }
+        console.log(store.currentView + " after logging in as guest");
     }
 
     store.like = async function (id, like) {
@@ -473,7 +516,7 @@ function GlobalStoreContextProvider(props) {
             console.log(playlist);
             const response2 = await api.updatePlaylistById(id, playlist);
         }
-        store.loadIdNamePairs();
+        store.setView(1);
     }
 
     store.search = async function (searchCriteria) {
@@ -573,7 +616,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("yeah i filtered gwuibgweug");
                 pairs = pairs.filter((element) => element.playlist.published === true);
             }
-
+            console.log(pairs);
             storeReducer({
                 type: GlobalStoreActionType.SORT,
                 payload: {
@@ -592,9 +635,11 @@ function GlobalStoreContextProvider(props) {
         // 2 = all lists (search by playlist name)
         // 3 = all lists (search by username)
         console.log(store.currentView);
+        console.log(viewType);
         if (viewType === 1) {
             let response = await api.getPlaylistPairs();
             if (response.data.success) {
+                console.log("YE");
                 let pairs = response.data.idNamePairs;
                 storeReducer({
                     type: GlobalStoreActionType.SET_VIEW,
@@ -644,7 +689,8 @@ function GlobalStoreContextProvider(props) {
             let response = await api.deletePlaylistById(id);
             if (response.data.success) {
                 store.loadIdNamePairs();
-                history.push("/");
+                //store.setView(store.currentView);
+                //history.push("/");
             }
         }
         processDelete(id);

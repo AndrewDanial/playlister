@@ -28,16 +28,19 @@ import SortIcon from '@mui/icons-material/Sort';
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
     const [sort, setSort] = useState(0);
     const [text, setText] = useState("");
     const [comment, setComment] = useState("");
-    useEffect(() => {
-        //store.loadIdNamePairs();
-        store.sort(sort);
-    }, [sort]);
+    /* useEffect(() => {
+         //store.loadIdNamePairs();
+         store.sort(sort);
+     }, [sort]);*/
 
     let sortHandler = (event) => {
         setSort(event.target.value);
+        console.log(event.target.value);
+        store.sort(event.target.value);
     }
 
     let listCard = "";
@@ -77,6 +80,11 @@ const HomeScreen = () => {
                 event.target.value = "Can't comment on an unpublished playlist";
                 return;
             }
+            if (auth.isGuest) {
+                event.target.value = "Can't comment as guest";
+                return;
+            }
+            event.target.value = "";
             store.comment(comment);
         }
     }
@@ -97,7 +105,7 @@ const HomeScreen = () => {
                     <ToolBar sx={{ backgroundColor: "rgb(120, 116, 113)" }}>
                         <Grid container xs={24}>
                             <Grid item xs={1} >
-                                <IconButton onClick={() => { changeCurrentView(1) }} >
+                                <IconButton disabled={auth.isGuest} onClick={() => { changeCurrentView(1) }} >
                                     <HomeIcon />
                                 </IconButton>
                             </Grid>

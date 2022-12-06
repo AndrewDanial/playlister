@@ -16,7 +16,7 @@ function Statusbar() {
     function handleCreateNewList() {
         store.createNewList();
     }
-    if (auth.loggedIn === true && store.currentList == null && store.currentView === 1) {
+    if (!auth.isGuest && auth.loggedIn === true && store.currentList == null && store.currentView === 1) {
         return (
             <div id="playlister-statusbar">
                 <div id="list-selector-heading">

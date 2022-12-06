@@ -165,12 +165,12 @@ function ListCard(props) {
                         <Grid container xs={12}>
                             <Grid item xs={4} sx={{ fontSize: "20pt", p: 1 }}>{idNamePair.name}</Grid>
                             {
-                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, true)}><ThumbsUp style={{ color: likeButtonColor }} />
+                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton disabled={auth.isGuest} onClick={(event) => handleLike(event, true)}><ThumbsUp style={{ color: likeButtonColor }} />
                                 </IconButton>{likes}
                                 </Grid> : null
                             }
                             {
-                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton onClick={(event) => handleLike(event, false)}><ThumbsDown style={{ color: dislikeButtonColor }} />
+                                idNamePair.playlist.published ? <Grid item xs={4} sx={{ fontSize: "12pt", p: 1 }}><IconButton disabled={auth.isGuest} onClick={(event) => handleLike(event, false)}><ThumbsDown style={{ color: dislikeButtonColor }} />
                                 </IconButton>{dislikes}
                                 </Grid> : null
                             }
@@ -250,7 +250,7 @@ function ListCard(props) {
                                 </Box>
                                 <Box sx={{ p: 1 }}>
                                     {
-                                        idNamePair.playlist.published && idNamePair.playlist.publisher === auth.user.username || !idNamePair.published ? <IconButton onClick={(event) => {
+                                        (!auth.isGuest) && (idNamePair.playlist.published && idNamePair.playlist.publisher === auth.user.username || !idNamePair.published) ? <IconButton onClick={(event) => {
                                             handleDeleteList(event, idNamePair._id)
                                         }} aria-label='delete'>
                                             <DeleteIcon style={{ fontSize: '36pt' }} />
