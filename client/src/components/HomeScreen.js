@@ -22,6 +22,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import Person from '@mui/icons-material/Person';
 import GroupsIcon from '@mui/icons-material/Groups';
 import SortIcon from '@mui/icons-material/Sort';
+
 /*
     This React component lists all the top5 lists in the UI.
 
@@ -143,12 +144,24 @@ const HomeScreen = () => {
                                     <Select value={sort} onChange={sortHandler}>
                                         <MenuItem value={1}>Name (A-Z)</MenuItem>
                                         {
+                                            store.currentView == 1 ? <MenuItem value={6}>Creation Date (Old - New)</MenuItem> : null
+                                        }
+                                        {
+                                            store.currentView == 1 ? <MenuItem value={7}>By Last Edit Date(New - Old)</MenuItem> : null
+                                        }
+                                        {
                                             store.currentView !== 1 ? <MenuItem value={2}>Publish Date (Newest) </MenuItem> : null
                                         }
+                                        {
+                                            store.currentView !== 1 ? <MenuItem value={3}>Listens (High - Low) </MenuItem> : null
+                                        }
+                                        {
+                                            store.currentView !== 1 ? <MenuItem value={4}>Likes (High - Low) </MenuItem> : null
+                                        }
+                                        {
+                                            store.currentView !== 1 ? <MenuItem value={5}>Dislikes (High - Low)</MenuItem> : null
+                                        }
 
-                                        <MenuItem value={3}>Listens (High - Low) </MenuItem>
-                                        <MenuItem value={4}>Likes (High - Low) </MenuItem>
-                                        <MenuItem value={5}>Dislikes (High - Low)</MenuItem>
                                     </Select>
                                 </FormControl>
 
@@ -179,6 +192,11 @@ const HomeScreen = () => {
                                 playerComponent
                             }
                             <TabPanel value="0">
+                                <Grid item xs={12}>
+                                    {
+                                        store.currentList ? <Box></Box> : null
+                                    }
+                                </Grid>
                             </TabPanel>
                             <TabPanel value="1">
                                 {
@@ -198,10 +216,7 @@ const HomeScreen = () => {
                                                     </List>
 
 
-                                                </Box>
-                                                : <Box>No playlist selected :( </Box>
-
-
+                                                </Box> : <Box></Box>
                                         }
                                         <Grid item xs={12}>
                                             {

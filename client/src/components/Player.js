@@ -2,8 +2,14 @@ import React, { useRef, useState } from "react";
 import YouTube from "react-youtube";
 import Grid from "@mui/material/Grid"
 import Box from "@mui/material/Box"
-
+import ToolBar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 function Player(props) {
+
     const [curr_song, setIndex] = useState(0);
     const playerRef = useRef(null);
     console.log(props.playlist);
@@ -28,6 +34,8 @@ function Player(props) {
     }
 
     function loadAndPlayCurrentSong() {
+        if (curr_song >= props.playlist.songs.length)
+            setIndex(0);
         let song = props.playlist.songs[curr_song].youTubeId;
         console.log(song);
         playerRef.current.loadVideoById(song);
@@ -75,32 +83,10 @@ function Player(props) {
                     opts={playerOptions}
                     onReady={onPlayerReady}
                     onStateChange={onPlayerStateChange}
-                    videoId={props.playlist.songs[curr_song].youTubeId}
+                    key={props.playlist._id}
+                    videoId={props.playlist.songs.length > curr_song ? props.playlist.songs[curr_song].youTubeId : props.playlist.songs[0].youTubeId}
                 /> : null
             }
-
-            <div>
-                <button
-                    onClick={() => {
-                        if (playerRef.current.getPlayerState() !== 1) {
-                            playerRef.current.mute();
-                            playerRef.current.playVideo();
-                            playerRef.current.unMute();
-                        }
-                    }}
-                >
-                    Play
-                </button>
-                <button
-                    onClick={() => {
-                        if (playerRef.current.getPlayerState() !== 2) {
-                            playerRef.current.pauseVideo();
-                        }
-                    }}
-                >
-                    Pause
-                </button>
-            </div>
             <Grid container direction="column" sx={{ fontSize: "32pt" }}>
                 {
                     props.playlist.songs.length > 0 ?
@@ -118,19 +104,59 @@ function Player(props) {
                 {
                     props.playlist.songs.length > 0 ?
                         <Box>
-                            Title: {props.playlist.songs[curr_song].title}
+                            Title: {props.playlist.songs.length > curr_song ? props.playlist.songs[curr_song].title : props.playlist.songs[0].title}
                         </Box> : null
                 }
 
                 {
                     props.playlist.songs.length > 0 ?
                         <Box>
-                            Artist: {props.playlist.songs[curr_song].artist}
+                            Artist: {props.playlist.songs.length > curr_song ? props.playlist.songs[curr_song].artist : props.playlist.songs[0].artist}
                         </Box> : null
                 }
 
             </Grid>
+            {
+                props.playlist.songs.length > 0 ?
+                    <ToolBar sx={{ marginTop: "10%" }}>
 
+                        <Grid container xs={12}>
+                            <Grid xs={3}></Grid>
+                            <Grid xs={1}>
+                                <IconButton>
+                                    <SkipPreviousIcon onClick={() => setIndex(Math.abs(curr_song - 1))} sx={{ fontSize: "48px" }} />
+
+                                </IconButton>
+                            </Grid>
+                            <Grid xs={1}>
+                                <IconButton>
+                                    <StopIcon sx={{ fontSize: "48px" }} onClick={() => {
+                                        if (playerRef.current.getPlayerState() !== 2) {
+                                            playerRef.current.pauseVideo();
+                                        }
+                                    }} />
+                                </IconButton>
+                            </Grid>
+                            <Grid xs={1}>
+                                <IconButton>
+                                    <PlayArrowIcon onClick={() => {
+                                        if (playerRef.current.getPlayerState() !== 1) {
+                                            playerRef.current.mute();
+                                            playerRef.current.playVideo();
+                                            playerRef.current.unMute();
+                                        }
+                                    }} sx={{ fontSize: "48px" }} />
+
+                                </IconButton>
+                            </Grid>
+                            <Grid xs={1}>
+                                <IconButton>
+                                    <SkipNextIcon onClick={() => incSong()} sx={{ fontSize: "48px" }} />
+                                </IconButton>
+                            </Grid>
+                        </Grid>
+                    </ToolBar> : null
+            }
 
         </div >
     );

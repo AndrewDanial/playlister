@@ -278,6 +278,7 @@ function GlobalStoreContextProvider(props) {
                     idNamePairs: payload.idNamePairs,
                     currentList: store.currentList,
                     sortingCriteria: payload.sortingCriteria,
+                    searchCriteria: null,
                 });
             }
             case GlobalStoreActionType.GUEST: {
@@ -462,13 +463,15 @@ function GlobalStoreContextProvider(props) {
 
                 let response3 = ""
                 if (store.currentView === 1) {
+                    console.log("we are here");
                     response3 = await api.getPlaylistPairs();
                 }
                 else {
                     response3 = await api.getPlaylists();
                 }
                 let newPairs = response3.data.idNamePairs;
-                newPairs = newPairs.filter((element) => element.playlist.published === true);
+                if (store.currentView !== 1)
+                    newPairs = newPairs.filter((element) => element.playlist.published === true);
                 if (response3.data.success) {
                     storeReducer({
                         type: GlobalStoreActionType.LISTEN,
@@ -633,7 +636,7 @@ function GlobalStoreContextProvider(props) {
                     break;
                 }
                 case 3: {
-                    pairs = pairs.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+                    pairs = pairs.sort((a, b) => a.playlist.listens > b.playlist.listens ? -1 : a.playlist.listens < b.playlist.listens ? 1 : 0);
                     break;
                 }
                 case 4: {
@@ -642,6 +645,14 @@ function GlobalStoreContextProvider(props) {
                 }
                 case 5: {
                     pairs = pairs.sort((a, b) => a.playlist.dislikes.length > b.playlist.dislikes.length ? -1 : a.playlist.dislikes.length < b.playlist.dislikes.length ? 1 : 0);
+                    break;
+                }
+                case 6: {
+                    pairs = pairs.sort((a, b) => a.playlist.createdAt > b.playlist.createdAt ? 1 : a.playlist.createdAt < b.playlist.createdAt ? - 1 : 0);
+                    break;
+                }
+                case 7: {
+                    pairs = pairs.sort((a, b) => a.playlist.updatedAt > b.playlist.updatedAt ? -1 : a.playlist.updatedAt < b.playlist.updatedAt ? 1 : 0);
                     break;
                 }
                 default:
@@ -713,6 +724,26 @@ function GlobalStoreContextProvider(props) {
         }
         getListToDelete(id);
     }
+
+    store.loginUser = async function (email, pass) {
+        auth.loginUser(email, pass);
+        console.log("here");
+        let response = await api.getPlaylists();
+        console.log(response.data.idNamePairs);
+        if (response.data.success) {
+            let pairs = response.data.idNamePairs;
+            pairs = pairs.filter((element) => element.playlist.ownerEmail === email);
+            storeReducer({
+                type: GlobalStoreActionType.SET_VIEW,
+                payload: {
+                    currentView: 1,
+                    idNamePairs: pairs
+                }
+            });
+            return;
+        }
+    }
+
     store.deleteList = function (id) {
         async function processDelete(id) {
             let response = await api.deletePlaylistById(id);
