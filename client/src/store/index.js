@@ -39,7 +39,8 @@ export const GlobalStoreActionType = {
     COMMENT: "COMMENT",
     SET_VIEW: "SET_VIEW",
     PUBLISH_LIST: "PUBLISH_LIST",
-    GUEST: "GUEST"
+    GUEST: "GUEST",
+    LISTEN: "LISTEN"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -70,7 +71,7 @@ function GlobalStoreContextProvider(props) {
         listMarkedForDeletion: null,
         searchCriteria: null,
         sortingCriteria: 0,
-        currentView: auth.isGuest ? 2 : 1,
+        currentView: 1,
     });
 
     const history = useHistory();
@@ -295,6 +296,14 @@ function GlobalStoreContextProvider(props) {
                     sortingCriteria: 0,
                 });
             }
+            case GlobalStoreActionType.LISTEN: {
+                return setStore({
+                    ...store,
+                    currentList: payload.currentList,
+                    idNamePairs: payload.idNamePairs,
+                    currentView: store.currentView
+                });
+            }
             default:
                 return store;
         }
@@ -377,7 +386,7 @@ function GlobalStoreContextProvider(props) {
                     storeReducer({
                         type: GlobalStoreActionType.CREATE_NEW_LIST,
                         payload: {
-                            currentList: newList,
+                            currentList: null,
                             idNamePairs: response3.data.idNamePairs
                         }
                     });
@@ -414,7 +423,11 @@ function GlobalStoreContextProvider(props) {
 
     store.continueAsGuest = async function () {
         auth.continueAsGuest();
+        console.log("but or did we");
+        console.log(auth.user);
+        console.log(auth.isGuest);
         let response = await api.getPlaylists();
+        console.log("but we made it here tho");
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
             let filteredPairs = pairs.filter((element) => element.playlist.published === true);
@@ -429,6 +442,54 @@ function GlobalStoreContextProvider(props) {
 
         }
         console.log(store.currentView + " after logging in as guest");
+    }
+
+    store.listen = async function (id) {
+        let response = "";
+        if (store.currentView === 1) {
+            response = await api.getPlaylistById(id)
+        }
+        else {
+            response = await api.getPlaylists()
+        }
+        if (response.data.success) {
+            let playlist = "";
+            if (store.currentView === 1) {
+                playlist = response.data.playlist;
+            }
+            else {
+                let pairs = response.data.idNamePairs;
+                pairs = pairs.filter((element) => element.playlist.published === true);
+                for (let element of pairs) {
+                    if (element._id === id) {
+                        playlist = element.playlist;
+                        break;
+                    }
+                }
+            }
+            console.log(playlist);
+            playlist.listens += 1;
+            let response2 = await api.updatePlaylistById(id, playlist);
+            if (response2.data.success) {
+
+                let response3 = ""
+                if (store.currentView === 1) {
+                    response3 = await api.getPlaylistPairs();
+                }
+                else {
+                    response3 = await api.getPlaylists();
+                }
+                if (response3.data.success) {
+                    storeReducer({
+                        type: GlobalStoreActionType.LISTEN,
+                        payload: {
+                            currentList: playlist,
+                            idNamePairs: response3.data.idNamePairs
+                        }
+                    })
+                }
+            }
+        }
     }
 
     store.like = async function (id, like) {
@@ -637,6 +698,7 @@ function GlobalStoreContextProvider(props) {
         console.log(store.currentView);
         console.log(viewType);
         if (viewType === 1) {
+
             let response = await api.getPlaylistPairs();
             if (response.data.success) {
                 console.log("YE");
@@ -651,7 +713,9 @@ function GlobalStoreContextProvider(props) {
                 return;
             }
         }
+        console.log("this failed")
         let response = await api.getPlaylists();
+        console.log("this failed 2")
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
             let filteredPairs = pairs.filter((element) => element.playlist.published === true);
@@ -666,6 +730,7 @@ function GlobalStoreContextProvider(props) {
                 });
             }
         }
+        console.log('werenfiownfiwefwef');
     }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE

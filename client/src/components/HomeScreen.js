@@ -4,6 +4,7 @@ import ListCard from './ListCard.js'
 import MUIDeleteModal from './MUIDeleteModal'
 import CommentCard from './CommentCard'
 import AuthContext from '../auth'
+import Player from './Player';
 
 import List from '@mui/material/List';
 import { Grid, Icon, IconButton, Menu, TextField } from '@mui/material';
@@ -169,7 +170,10 @@ const HomeScreen = () => {
                                 <Tab value="1" label="Comments" />
                             </TabList>
                             <TabPanel value="0">
-                                PLAYER :D
+                                {
+                                    store.currentList ? <Player playlist={store.currentList} /> :
+                                        <Box>No playlist selected :( </Box>
+                                }
                             </TabPanel>
                             <TabPanel value="1">
                                 {

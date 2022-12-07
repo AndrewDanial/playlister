@@ -90,7 +90,13 @@ function ListCard(props) {
                 store.setCurrentList(null);
                 return;
             }
+            if (idNamePair.playlist.published) {
+                //store.listen(idNamePair._id, idNamePair.playlist);
+
+            }
+
             store.setCurrentList(idNamePair._id);
+
         }
 
     }
@@ -178,8 +184,18 @@ function ListCard(props) {
                         </Grid>
 
                         <Grid item>
-                            {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>By: {idNamePair.playlist.publisher} </Box> :
-                                <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.username} </Box>}
+                            <Grid container xs={12} direction="row">
+                                <Grid item xs={7}>
+                                    {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>By: {idNamePair.playlist.publisher} </Box> :
+                                        <Box sx={{ fontSize: "20pt", p: 1 }}>By: {auth.user.username} </Box>}
+                                </Grid>
+                                <Grid item xs={5}>
+                                    {
+                                        idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Listens: {idNamePair.playlist.listens} </Box> : null
+                                    }
+                                </Grid>
+                            </Grid>
+
                             {idNamePair.playlist.published ? <Box sx={{ fontSize: "20pt", p: 1 }}>Published Date: {new Date(idNamePair.playlist.publishedDate).toLocaleString('en-US', { timezone: "America/New_York", month: 'short', day: '2-digit', year: 'numeric' })} </Box> : null}
                         </Grid>
 

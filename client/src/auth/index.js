@@ -36,7 +36,7 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: payload.loggedIn,
-
+                    isGuest: false,
                 });
             }
             case AuthActionType.LOGIN_USER: {
@@ -49,28 +49,23 @@ function AuthContextProvider(props) {
             case AuthActionType.LOGOUT_USER: {
                 return setAuth({
                     user: null,
-                    loggedIn: false
+                    loggedIn: false,
+                    isGuest: false,
                 })
             }
             case AuthActionType.REGISTER_USER: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true,
+                    isGuest: false,
                 })
             }
             case AuthActionType.ERROR: {
                 return setAuth({
                     user: null,
                     loggedIn: false,
-                    err: payload
-                })
-            }
-            case AuthActionType.GUEST: {
-                return setAuth({
-                    user: null,
-                    loggedIn: true,
-                    err: false,
-                    isGuest: true
+                    err: payload,
+                    isGuest: false,
                 })
             }
             default:
@@ -99,6 +94,7 @@ function AuthContextProvider(props) {
                 user: "Guest",
             }
         });
+        history.push("/");
     }
 
     auth.registerUser = async function (firstName, lastName, username, email, password, passwordVerify) {
