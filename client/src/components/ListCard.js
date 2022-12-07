@@ -91,11 +91,10 @@ function ListCard(props) {
                 return;
             }
             if (idNamePair.playlist.published) {
-                //store.listen(idNamePair._id, idNamePair.playlist);
+                store.listen(idNamePair._id, idNamePair.playlist);
 
             }
 
-            store.setCurrentList(idNamePair._id);
 
         }
 
