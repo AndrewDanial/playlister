@@ -40,7 +40,6 @@ const HomeScreen = () => {
 
     let sortHandler = (event) => {
         setSort(event.target.value);
-        console.log(event.target.value);
         store.sort(event.target.value);
     }
 
@@ -59,9 +58,10 @@ const HomeScreen = () => {
                 }
             </List>;
     }
-    const [value, setValue] = useState('1');
+    const [value, setValue] = useState('0');
 
     const handleChange = (event, newValue) => {
+        console.log(newValue + "new val");
         setValue(newValue);
     };
 
@@ -97,6 +97,12 @@ const HomeScreen = () => {
     function changeCurrentView(view) {
         store.setView(view);
     }
+    let display = "";
+    if (value == 1)
+        display = 'none'
+    console.log(value + " VALUE");
+    console.log(display);
+    let playerComponent = store.currentList ? <Box sx={{ display: display }}><Player playlist={store.currentList} /> </Box> : <Box>No playlist selected :( </Box>
 
     return (
 
@@ -169,26 +175,31 @@ const HomeScreen = () => {
                                 <Tab value="0" label="Player" />
                                 <Tab value="1" label="Comments" />
                             </TabList>
+                            {
+                                playerComponent
+                            }
                             <TabPanel value="0">
-                                {
-                                    store.currentList ? <Player playlist={store.currentList} /> :
-                                        <Box>No playlist selected :( </Box>
-                                }
                             </TabPanel>
                             <TabPanel value="1">
                                 {
                                     <Grid container direction="column">
                                         {
-                                            store.currentList ? <List sx={{ height: "40vh", overflow: "scroll", overflowX: "hidden", maxWidth: "90%" }}>
-                                                {
-                                                    store.currentList.comments.map((comment) => (
-                                                        CommentCard(comment.username, comment.comment)
-                                                    ))
-                                                }
+                                            store.currentList ?
+
+                                                <Box>
+
+                                                    <List sx={{ height: "40vh", overflow: "scroll", overflowX: "hidden", maxWidth: "90%" }}>
+                                                        {
+                                                            store.currentList.comments.map((comment) => (
+                                                                CommentCard(comment.username, comment.comment)
+                                                            ))
+                                                        }
+
+                                                    </List>
 
 
-                                            </List> : <Box>No playlist selected :( </Box>
-
+                                                </Box>
+                                                : <Box>No playlist selected :( </Box>
 
 
                                         }

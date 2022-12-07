@@ -328,7 +328,6 @@ function GlobalStoreContextProvider(props) {
                             response = await api.getPlaylistPairs();
                             if (response.data.success) {
                                 let pairsArray = response.data.idNamePairs;
-                                console.log(playlist);
                                 storeReducer({
                                     type: GlobalStoreActionType.CHANGE_LIST_NAME,
                                     payload: {
@@ -359,16 +358,13 @@ function GlobalStoreContextProvider(props) {
 
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
-        console.log("in here");
         let ctr = 0;
         let newListName = "Untitled " + ctr;
         let response2 = await api.getPlaylistPairs();
         if (response2.data.success) {
             let pairs = response2.data.idNamePairs;
-            console.log(pairs);
             for (let i in pairs)
                 for (let element of pairs) {
-                    console.log(element);
                     if (element.name === newListName) {
                         ctr += 1;
                         newListName = "Untitled " + ctr;
@@ -377,7 +373,6 @@ function GlobalStoreContextProvider(props) {
                 }
 
             const response = await api.createPlaylist(newListName, [], auth.user.email);
-            console.log("createNewList response: " + response);
             if (response.status === 201) {
                 tps.clearAllTransactions();
                 let newList = response.data.playlist;
@@ -423,15 +418,10 @@ function GlobalStoreContextProvider(props) {
 
     store.continueAsGuest = async function () {
         auth.continueAsGuest();
-        console.log("but or did we");
-        console.log(auth.user);
-        console.log(auth.isGuest);
         let response = await api.getPlaylists();
-        console.log("but we made it here tho");
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
             let filteredPairs = pairs.filter((element) => element.playlist.published === true);
-            console.log(filteredPairs);
             storeReducer({
                 type: GlobalStoreActionType.GUEST,
                 payload: {
@@ -441,7 +431,6 @@ function GlobalStoreContextProvider(props) {
             });
 
         }
-        console.log(store.currentView + " after logging in as guest");
     }
 
     store.listen = async function (id) {
@@ -467,7 +456,6 @@ function GlobalStoreContextProvider(props) {
                     }
                 }
             }
-            console.log(playlist);
             playlist.listens += 1;
             let response2 = await api.updatePlaylistById(id, playlist);
             if (response2.data.success) {
@@ -479,12 +467,14 @@ function GlobalStoreContextProvider(props) {
                 else {
                     response3 = await api.getPlaylists();
                 }
+                let newPairs = response3.data.idNamePairs;
+                newPairs = newPairs.filter((element) => element.playlist.published === true);
                 if (response3.data.success) {
                     storeReducer({
                         type: GlobalStoreActionType.LISTEN,
                         payload: {
                             currentList: playlist,
-                            idNamePairs: response3.data.idNamePairs
+                            idNamePairs: newPairs
                         }
                     })
                 }
@@ -494,36 +484,26 @@ function GlobalStoreContextProvider(props) {
 
     store.like = async function (id, like) {
         let response = "";
-        console.log(store);
-        console.log(store.currentView);
         if (store.currentView === 1)
             response = await api.getPlaylistById(id);
         else
             response = await api.getPlaylists();
-        console.log(response);
         if (response.data.success) {
             let playlist = "";
 
-            console.log(response.data);
             if (store.currentView === 1) {
-                console.log("this is the view")
                 playlist = response.data.playlist;
             }
             else {
-                console.log(id + " main id");
                 let pairs = response.data.idNamePairs;
                 pairs = pairs.filter((element) => element.playlist.published === true);
-                console.log(pairs + " woah pairs")
                 for (let element of pairs) {
-                    console.log(element);
                     if (element._id === id) {
-                        console.log("we broke")
                         playlist = element.playlist;
                         break;
                     }
                 }
             }
-            console.log(playlist);
             if (like) {
                 if (!playlist.likes.includes(auth.user.email)) {
                     if (playlist.dislikes.includes(auth.user.email)) {
@@ -574,7 +554,6 @@ function GlobalStoreContextProvider(props) {
             playlist.published = true;
             playlist.publishedDate = new Date();
             playlist.publisher = auth.user.username;
-            console.log(playlist);
             const response2 = await api.updatePlaylistById(id, playlist);
         }
         store.setView(1);
@@ -591,14 +570,12 @@ function GlobalStoreContextProvider(props) {
         let response = "";
 
         if (store.currentView === 1) {
-            console.log("it is in deed 1 d12e12e")
             response = await api.getPlaylistById(store.currentList._id);
         }
         else {
             response = await api.getPlaylists();
             if (response.data.success) {
                 for (let element of response.data.idNamePairs) {
-                    console.log(element);
                     if (element._id === store.currentList._id) {
                         element.playlist.comments.push({
                             username: auth.user.username,
@@ -637,17 +614,14 @@ function GlobalStoreContextProvider(props) {
 
     store.sort = async function (sortingCriteria) {
         let response = "";
-        console.log(store.currentView + " in sort");
         if (store.currentView === 1)
             response = await api.getPlaylistPairs();
         else {
-            console.log("yuh")
 
             response = await api.getPlaylists();
         }
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
-            console.log(sortingCriteria + " sorting criteria");
             switch (sortingCriteria) {
                 case 1: {
                     pairs = pairs.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
@@ -674,10 +648,8 @@ function GlobalStoreContextProvider(props) {
                     break;
             }
             if (store.currentView !== 1) {
-                console.log("yeah i filtered gwuibgweug");
                 pairs = pairs.filter((element) => element.playlist.published === true);
             }
-            console.log(pairs);
             storeReducer({
                 type: GlobalStoreActionType.SORT,
                 payload: {
@@ -686,7 +658,6 @@ function GlobalStoreContextProvider(props) {
                     currentView: store.currentView
                 }
             });
-            console.log("post reducer stress disorder");
         }
 
     }
@@ -695,13 +666,10 @@ function GlobalStoreContextProvider(props) {
         // view type of 1 = home
         // 2 = all lists (search by playlist name)
         // 3 = all lists (search by username)
-        console.log(store.currentView);
-        console.log(viewType);
         if (viewType === 1) {
 
             let response = await api.getPlaylistPairs();
             if (response.data.success) {
-                console.log("YE");
                 let pairs = response.data.idNamePairs;
                 storeReducer({
                     type: GlobalStoreActionType.SET_VIEW,
@@ -713,13 +681,10 @@ function GlobalStoreContextProvider(props) {
                 return;
             }
         }
-        console.log("this failed")
         let response = await api.getPlaylists();
-        console.log("this failed 2")
         if (response.data.success) {
             let pairs = response.data.idNamePairs;
             let filteredPairs = pairs.filter((element) => element.playlist.published === true);
-            console.log(filteredPairs);
             if (viewType === 2 || viewType === 3) {
                 storeReducer({
                     type: GlobalStoreActionType.SET_VIEW,
@@ -730,7 +695,6 @@ function GlobalStoreContextProvider(props) {
                 });
             }
         }
-        console.log('werenfiownfiwefwef');
     }
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
@@ -815,7 +779,6 @@ function GlobalStoreContextProvider(props) {
                 response = await api.getPlaylists();
                 if (response.data.success) {
                     for (let element of response.data.idNamePairs) {
-                        console.log(element);
                         if (element._id === id) {
                             storeReducer({
                                 type: GlobalStoreActionType.SET_CURRENT_LIST,

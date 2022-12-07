@@ -158,6 +158,9 @@ function AuthContextProvider(props) {
             initials += auth.user.firstName.charAt(0);
             initials += auth.user.lastName.charAt(0);
         }
+        else {
+            initials = "Guest User";
+        }
         console.log("user initials: " + initials);
         return initials;
     }

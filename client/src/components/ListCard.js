@@ -92,9 +92,7 @@ function ListCard(props) {
             }
             if (idNamePair.playlist.published) {
                 store.listen(idNamePair._id, idNamePair.playlist);
-
             }
-
 
         }
 
