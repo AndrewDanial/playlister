@@ -145,6 +145,7 @@ getPlaylistPairs = async (req, res) => {
 getPlaylists = async (req, res) => {
     await Playlist.find({}, (err, playlists) => {
         if (err) {
+            console.log("WE ERRORED");
             return res.status(400).json({ success: false, error: err })
         }
         if (!playlists.length) {
@@ -206,6 +207,7 @@ updatePlaylist = async (req, res) => {
             list.publishedDate = body.playlist.publishedDate;
             list.publisher = body.playlist.publisher;
             list.comments = body.playlist.comments;
+            list.listens = body.playlist.listens;
             list
                 .save()
                 .then(() => {
