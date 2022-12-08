@@ -42,6 +42,9 @@ export default function SplashScreen() {
                 <Button onClick={handleLogin} variant="contained" sx={buttonStyle}>Login</Button>
                 <Button onClick={continueAsGuest} href="" variant="contained" sx={buttonStyle} >Continue As Guest</Button>
             </ButtonGroup>
+            <div style={{ fontSize: "30pt" }}>
+                Created by Andrew Danial
+            </div>
         </div >
 
     )
