@@ -399,6 +399,48 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
+
+    store.duplicate = async function (playlist) {
+        let ctr = 0;
+        let newListName = playlist.name + " " + ctr;
+        let response2 = await api.getPlaylistPairs();
+        if (response2.data.success) {
+            let pairs = response2.data.idNamePairs;
+            for (let i in pairs)
+                for (let element of pairs) {
+                    if (element.name === newListName) {
+                        ctr += 1;
+                        newListName = "Untitled " + ctr;
+                        break;
+                    }
+                }
+
+            const response = await api.createPlaylist(newListName, [], auth.user.email);
+            if (response.status === 201) {
+                tps.clearAllTransactions();
+                let newList = response.data.playlist;
+                let response3 = await api.getPlaylistPairs();
+                if (response3.data.success) {
+                    storeReducer({
+                        type: GlobalStoreActionType.CREATE_NEW_LIST,
+                        payload: {
+                            currentList: null,
+                            idNamePairs: response3.data.idNamePairs
+                        }
+                    });
+                }
+
+            }
+
+
+            // IF IT'S A VALID LIST THEN LET'S START EDITING IT
+            //history.push("/playlist/" + newList._id);
+        }
+        else {
+            console.log("API FAILED TO CREATE A NEW LIST");
+        }
+    }
+
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
         async function asyncLoadIdNamePairs() {

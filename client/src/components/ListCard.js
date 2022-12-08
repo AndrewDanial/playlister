@@ -153,6 +153,11 @@ function ListCard(props) {
     else {
         listColor = "rgb(155, 50, 219)"
     }
+
+    function handleDuplicate(event) {
+        event.stopPropagation();
+        store.duplicate(idNamePair);
+    }
     cardElement =
         <Box>
             {
@@ -237,6 +242,12 @@ function ListCard(props) {
                                 }
 
                             </Grid>
+                            <Grid item xs={1}>
+                                {
+                                    store.currentList !== null && !auth.isGuest && idNamePair._id === store.currentList._id ?
+                                        <Button onClick={(event) => { handleDuplicate(event); }} sx={{ backgroundColor: "black" }}>Duplicate </Button> : null
+                                }
+                            </Grid>
                             <Grid item xs={5}>
                                 {
                                     store.currentList !== null && idNamePair._id === store.currentList._id ? <EditToolbar /> : null
@@ -279,7 +290,7 @@ function ListCard(props) {
                 </ListItem>
             }
 
-        </Box>
+        </Box >
 
 
 
