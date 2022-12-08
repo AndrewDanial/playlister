@@ -404,18 +404,19 @@ function GlobalStoreContextProvider(props) {
         let ctr = 0;
         let newListName = playlist.name + " " + ctr;
         let response2 = await api.getPlaylistPairs();
+        console.log(response2);
         if (response2.data.success) {
             let pairs = response2.data.idNamePairs;
             for (let i in pairs)
                 for (let element of pairs) {
                     if (element.name === newListName) {
                         ctr += 1;
-                        newListName = "Untitled " + ctr;
+                        newListName = playlist.name + " " + ctr;
                         break;
                     }
                 }
 
-            const response = await api.createPlaylist(newListName, [], auth.user.email);
+            const response = await api.createPlaylist(newListName, playlist.songs, auth.user.email);
             if (response.status === 201) {
                 tps.clearAllTransactions();
                 let newList = response.data.playlist;
@@ -429,15 +430,8 @@ function GlobalStoreContextProvider(props) {
                         }
                     });
                 }
-
             }
 
-
-            // IF IT'S A VALID LIST THEN LET'S START EDITING IT
-            //history.push("/playlist/" + newList._id);
-        }
-        else {
-            console.log("API FAILED TO CREATE A NEW LIST");
         }
     }
 

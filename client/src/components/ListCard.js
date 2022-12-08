@@ -156,7 +156,7 @@ function ListCard(props) {
 
     function handleDuplicate(event) {
         event.stopPropagation();
-        store.duplicate(idNamePair);
+        store.duplicate(idNamePair.playlist);
     }
     cardElement =
         <Box>
